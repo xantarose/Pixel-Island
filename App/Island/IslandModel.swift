@@ -13,6 +13,10 @@ final class IslandModel {
 
     @ObservationIgnored private var syncTask: Task<Void, Never>?
     @ObservationIgnored private var watchTask: Task<Void, Never>?
+    /// Lifecycle work (app opened, island link handled) runs one at a time:
+    /// otherwise reloading the state could overwrite an action that is
+    /// still being applied.
+    @ObservationIgnored private var serialTail: Task<Void, Never>?
 
     init() {
         state = IslandStorage.load()
@@ -77,6 +81,10 @@ final class IslandModel {
     /// App opened: pick up changes made by island buttons, bring the pet back
     /// if iOS ended the activity.
     func appBecameActive() async {
+        await serially { await self.refreshFromDiskAndIsland() }
+    }
+
+    private func refreshFromDiskAndIsland() async {
         state = IslandStorage.load()
         // Island buttons may have run outside the app: the activity knows best.
         if let incoming = IslandController.current?.content.state {
@@ -144,11 +152,24 @@ final class IslandModel {
     func handle(_ url: URL) {
         guard let action = IslandAction(url: url) else { return }
         Task {
-            await action.perform()
-            if let incoming = IslandController.current?.content.state {
-                adopt(incoming)
+            await serially {
+                await action.perform()
+                if let incoming = IslandController.current?.content.state {
+                    self.adopt(incoming)
+                }
             }
         }
+    }
+
+    /// Runs `work` after everything queued before it has finished.
+    private func serially(_ work: @escaping @MainActor () async -> Void) async {
+        let previous = serialTail
+        let task = Task { @MainActor in
+            await previous?.value
+            await work()
+        }
+        serialTail = task
+        await task.value
     }
 
     // MARK: - Partner

@@ -187,7 +187,7 @@ struct MinimalIslandView: View {
 
 struct ExpandedLeadingView: View {
     let state: IslandState
-    var mode: PlaybackMode = .liveActivity
+    let mode: PlaybackMode
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -211,7 +211,7 @@ struct ExpandedLeadingView: View {
 
 struct ExpandedTrailingView: View {
     let state: IslandState
-    var mode: PlaybackMode = .liveActivity
+    let mode: PlaybackMode
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 2) {

@@ -30,9 +30,13 @@ enum IslandController {
         change(&state)
         await activity.update(content(for: state))
         #if !WIDGET_EXTENSION
+        // Copy the result instead of applying `change` a second time: for a
+        // toggle (sleep) two different starting values would end up opposite.
         var stored = IslandStorage.load()
-        change(&stored)
-        stored.showsHearts = false
+        stored.isSleeping = state.isSleeping
+        stored.activity = state.activity
+        stored.pose = state.pose
+        stored.focus = state.focus
         IslandStorage.save(stored)
         #endif
     }

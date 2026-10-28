@@ -27,6 +27,20 @@ struct SegmentPlayer<Content: View>: View {
     }
 
     var body: some View {
+        if weights.isEmpty {
+            Color.clear.frame(width: size.width, height: size.height)
+        } else if weights.count == 1 || mode == .still {
+            // Nothing to switch between: draw the frame as is, no rotating
+            // mask for the system to animate (saves battery).
+            content(0)
+                .frame(width: size.width, height: size.height)
+        } else {
+            animated
+        }
+    }
+
+    @ViewBuilder
+    private var animated: some View {
         switch mode {
         case .still:
             content(0)

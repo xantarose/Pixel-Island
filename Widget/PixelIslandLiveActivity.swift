@@ -19,10 +19,10 @@ struct PixelIslandLiveActivity: Widget {
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    ExpandedLeadingView(state: context.state)
+                    ExpandedLeadingView(state: context.state, mode: context.state.liveActivityMode)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    ExpandedTrailingView(state: context.state)
+                    ExpandedTrailingView(state: context.state, mode: context.state.liveActivityMode)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     ExpandedBottomView(state: context.state, isStale: context.isStale, mode: context.state.liveActivityMode)
