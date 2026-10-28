@@ -140,3 +140,83 @@ struct ChoiceGrid<Option: Hashable>: View {
         }
     }
 }
+
+/// Row of colour dots for the island outline.
+struct KeylinePicker: View {
+    let selection: KeylineColor
+    let onSelect: (KeylineColor) -> Void
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 40), spacing: 10)], spacing: 10) {
+            ForEach(KeylineColor.allCases, id: \.self) { color in
+                let isSelected = color == selection
+                Button {
+                    onSelect(color)
+                } label: {
+                    Circle()
+                        .fill(Color(hex: color.hex))
+                        .frame(width: 34, height: 34)
+                        .overlay {
+                            Circle()
+                                .strokeBorder(Theme.cream, lineWidth: isSelected ? 3 : 0)
+                                .padding(-5)
+                        }
+                        .padding(5)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(color.title)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+                .sensoryFeedback(.selection, trigger: isSelected)
+            }
+        }
+    }
+}
+
+/// "Своё время" for the focus timer: hours and minutes wheels.
+struct FocusTimerSheet: View {
+    let onStart: (Int) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var hours = 0
+    @State private var minutes = 30
+
+    private var total: Int { hours * 60 + minutes }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 16) {
+                HStack(spacing: 0) {
+                    Picker("Часы", selection: $hours) {
+                        ForEach(0..<6, id: \.self) { Text("\($0) ч").tag($0) }
+                    }
+                    .pickerStyle(.wheel)
+                    Picker("Минуты", selection: $minutes) {
+                        ForEach(0..<60, id: \.self) { Text("\($0) мин").tag($0) }
+                    }
+                    .pickerStyle(.wheel)
+                }
+                .frame(height: 160)
+
+                Button {
+                    onStart(total)
+                    dismiss()
+                } label: {
+                    Label("Начать фокус", systemImage: "moon.zzz.fill")
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(total == 0)
+                .opacity(total == 0 ? 0.5 : 1)
+            }
+            .padding(16)
+            .frame(maxHeight: .infinity, alignment: .top)
+            .background(Theme.background.ignoresSafeArea())
+            .navigationTitle("Своё время")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Закрыть") { dismiss() }
+                }
+            }
+        }
+    }
+}

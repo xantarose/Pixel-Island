@@ -53,6 +53,9 @@ enum Scripts {
         case .auto:
             let start = (range - strollEnd) / 2
             a = Actor(x: start, y: y)
+            if strollEnd == 0 {
+                a.hold(.walk, [(0, 2), (1, 2), (2, 2), (3, 2)])
+            }
             a.walk(to: start + strollEnd, stride: stride)
             a.hold(.sit, [(0, 8), (1, 1), (0, 4)])
             a.hold(.groom, [(0, 3), (1, 3), (0, 3), (1, 3)])
@@ -62,6 +65,10 @@ enum Scripts {
             a.hold(.stretch, [(0, 4), (1, 4)])
             a.hold(.play, [(0, 4), (1, 2), (0, 3), (1, 2)])
             a.walk(to: start, stride: stride)
+            a.hold(.sit, [(0, 6), (1, 1), (0, 3)])
+        case .walk where strollEnd == 0:
+            // No room (narrow island): walk on the spot.
+            a.hold(.walk, [(0, 2), (1, 2), (2, 2), (3, 2), (0, 2), (1, 2), (2, 2), (3, 2)])
             a.hold(.sit, [(0, 6), (1, 1), (0, 3)])
         case .walk:
             let start = (range - strollEnd) / 2

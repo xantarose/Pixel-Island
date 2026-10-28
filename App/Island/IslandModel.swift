@@ -78,6 +78,10 @@ final class IslandModel {
     /// if iOS ended the activity.
     func appBecameActive() async {
         state = IslandStorage.load()
+        // Island buttons may have run outside the app: the activity knows best.
+        if let incoming = IslandController.current?.content.state {
+            adopt(incoming)
+        }
         if let focus = state.focus, focus.isFinished() {
             mutate { $0.focus = nil }
         }
@@ -96,19 +100,23 @@ final class IslandModel {
         watchTask = Task { [weak self] in
             for await content in activity.contentUpdates {
                 guard let self, !Task.isCancelled else { return }
-                let incoming = content.state
-                var merged = self.state
-                merged.isSleeping = incoming.isSleeping
-                merged.activity = incoming.activity
-                merged.pose = incoming.pose
-                if incoming.focus == nil {
-                    merged.focus = nil
-                }
-                if merged != self.state {
-                    self.state = merged
-                    IslandStorage.save(merged)
-                }
+                self.adopt(content.state)
             }
+        }
+    }
+
+    /// Take over what island buttons can change; keep everything else.
+    private func adopt(_ incoming: IslandState) {
+        var merged = state
+        merged.isSleeping = incoming.isSleeping
+        merged.activity = incoming.activity
+        merged.pose = incoming.pose
+        if incoming.focus == nil {
+            merged.focus = nil
+        }
+        if merged != state {
+            state = merged
+            IslandStorage.save(merged)
         }
     }
 

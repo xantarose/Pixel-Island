@@ -44,6 +44,10 @@ struct IslandState: Codable, Hashable {
     var pose: SoloPose
     var activity: CoupleActivity
     var effect: AtmosphereEffect
+    var islandWidth: IslandWidth = .narrow
+    var badge: IslandBadge = .heart
+    var keyline: KeylineColor = .pink
+    var effectScope: EffectScope = .pet
 
     static let initial = IslandState(
         me: .defaultMine,
@@ -93,6 +97,10 @@ struct IslandState: Codable, Hashable {
         pose = (try? c.decodeIfPresent(SoloPose.self, forKey: .pose)) ?? .auto
         activity = (try? c.decodeIfPresent(CoupleActivity.self, forKey: .activity)) ?? .walk
         effect = (try? c.decodeIfPresent(AtmosphereEffect.self, forKey: .effect)) ?? .auto
+        islandWidth = (try? c.decodeIfPresent(IslandWidth.self, forKey: .islandWidth)) ?? .narrow
+        badge = (try? c.decodeIfPresent(IslandBadge.self, forKey: .badge)) ?? .heart
+        keyline = (try? c.decodeIfPresent(KeylineColor.self, forKey: .keyline)) ?? .pink
+        effectScope = (try? c.decodeIfPresent(EffectScope.self, forKey: .effectScope)) ?? .pet
     }
 
     func sanitized() -> IslandState {

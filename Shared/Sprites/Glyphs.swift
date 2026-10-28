@@ -9,6 +9,14 @@ enum StageGlyph: Hashable {
     case zzzTwo
     case yarn
     case sparkle
+    // Badges for the right side of the island.
+    case redHeart
+    case whiteHeart
+    case twoHearts
+    case star
+    case moon
+    case paw
+    case sakura
 
     var frame: PixelFrame { Self.frames[self] ?? PixelFrame(rows: []) }
 
@@ -20,6 +28,13 @@ enum StageGlyph: Hashable {
         "Y": Color(hex: 0xFF8FB8),
         "y": Color(hex: 0xD9557F),
         "S": Color(hex: 0xFFF3A0),
+        "R": Color(hex: 0xFF3B5C),
+        "r": Color(hex: 0x8A1430),
+        "g": Color(hex: 0x8E86A0),
+        "M": Color(hex: 0xFFE9A8),
+        "K": Color(hex: 0xFFB3CB),
+        "k": Color(hex: 0xF07AA3),
+        "B": Color(hex: 0xF6F2FA),
     ]
 
     private static let frames: [StageGlyph: PixelFrame] = [
@@ -69,11 +84,120 @@ enum StageGlyph: Hashable {
             ".YYY.",
         ]),
         .sparkle: PixelFrame(rows: [
-            ".S.",
-            "SSS",
-            ".S.",
+            "...W...",
+            "...W...",
+            "..WSW..",
+            "WWSSSWW",
+            "..WSW..",
+            "...W...",
+            "...W...",
+        ]),
+        .redHeart: PixelFrame(rows: [
+            ".rr.rr.",
+            "rRRrRRr",
+            "rRWRRRr",
+            "rRRRRRr",
+            ".rRRRr.",
+            "..rRr..",
+            "...r...",
+        ]),
+        .whiteHeart: PixelFrame(rows: [
+            ".gg.gg.",
+            "gBBgBBg",
+            "gBBBBBg",
+            "gBBBBBg",
+            ".gBBBg.",
+            "..gBg..",
+            "...g...",
+        ]),
+        .twoHearts: PixelFrame(rows: [
+            "PP.PP.....",
+            "PWPPP.....",
+            "PPPPP.....",
+            ".PPPRR.RR.",
+            "..P.RWRRR.",
+            "....RRRRR.",
+            ".....RRR..",
+            "......R...",
+        ]),
+        .star: PixelFrame(rows: [
+            "...S...",
+            "..SSS..",
+            "SSSSSSS",
+            ".SSSSS.",
+            "..SSS..",
+            ".SS.SS.",
+            ".S...S.",
+        ]),
+        .moon: PixelFrame(rows: [
+            "..MMMM.",
+            ".MMM...",
+            "MMM....",
+            "MMM....",
+            "MMM....",
+            ".MMM...",
+            "..MMMM.",
+        ]),
+        .paw: PixelFrame(rows: [
+            "..KK.KK..",
+            "..KK.KK..",
+            "KK.....KK",
+            "KK.kkk.KK",
+            "..kkkkk..",
+            ".kkkkkkk.",
+            ".kkkkkkk.",
+            "..kk.kk..",
+        ]),
+        .sakura: PixelFrame(rows: [
+            "..K.K..",
+            ".KKKKK.",
+            "KKkSkKK",
+            ".KSSSK.",
+            "KKkSkKK",
+            ".KKKKK.",
+            "..K.K..",
         ]),
     ]
+}
+
+/// The picture on the right side of the island. `heartbeat` pulses.
+struct BadgeView: View {
+    let badge: IslandBadge
+    let pixel: CGFloat
+    let mode: PlaybackMode
+
+    var body: some View {
+        switch badge {
+        case .none:
+            EmptyView()
+        case .heartbeat:
+            let size = CGSize(width: 7 * pixel, height: 7 * pixel)
+            SegmentPlayer(weights: [4, 2], size: size, mode: mode) { index in
+                PixelFrameView(
+                    frame: index == 0 ? StageGlyph.heart.frame : StageGlyph.smallHeart.frame,
+                    palette: StageGlyph.palette,
+                    pixel: pixel
+                )
+                .frame(width: size.width, height: size.height)
+            }
+        default:
+            PixelFrameView(frame: glyph.frame, palette: StageGlyph.palette, pixel: pixel)
+        }
+    }
+
+    private var glyph: StageGlyph {
+        switch badge {
+        case .none, .heart, .heartbeat: return .heart
+        case .redHeart: return .redHeart
+        case .whiteHeart: return .whiteHeart
+        case .twoHearts: return .twoHearts
+        case .sparkle: return .sparkle
+        case .star: return .star
+        case .moon: return .moon
+        case .paw: return .paw
+        case .sakura: return .sakura
+        }
+    }
 }
 
 struct PixelHeart: View {

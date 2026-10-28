@@ -3,10 +3,11 @@ import Foundation
 
 // Live Activity buttons and Shortcuts actions.
 //
-// These files are compiled into both targets: the widget extension needs the
-// types to draw `Button(intent:)`, but iOS always runs `perform()` inside the
-// app process. The extension build defines WIDGET_EXTENSION, so the real work
-// (which uses app-only code) is compiled into the app only.
+// Compiled into both targets. iOS is supposed to run `perform()` in the app,
+// but a re-signed build may run it in the widget extension. Every button
+// therefore changes the activity through `IslandController.modify`, which
+// works in both processes. Only "start" needs the app (WIDGET_EXTENSION is
+// defined in the extension build).
 
 /// "Погладить": hearts float above the pets for a few seconds.
 struct PetIntent: LiveActivityIntent {
@@ -15,9 +16,7 @@ struct PetIntent: LiveActivityIntent {
     static let isDiscoverable = false
 
     func perform() async throws -> some IntentResult {
-        #if !WIDGET_EXTENSION
         await IslandController.flashHearts()
-        #endif
         return .result()
     }
 }
@@ -28,12 +27,7 @@ struct ToggleSleepIntent: LiveActivityIntent {
     static let description = IntentDescription("Питомцы на островке засыпают или просыпаются.")
 
     func perform() async throws -> some IntentResult {
-        #if !WIDGET_EXTENSION
-        var state = IslandStorage.load()
-        state.isSleeping.toggle()
-        IslandStorage.save(state)
-        await IslandController.update(state)
-        #endif
+        await IslandController.modify { $0.isSleeping.toggle() }
         return .result()
     }
 }
@@ -44,19 +38,16 @@ struct NextActivityIntent: LiveActivityIntent {
     static let description = IntentDescription("Питомцы на островке переключаются на другое занятие.")
 
     func perform() async throws -> some IntentResult {
-        #if !WIDGET_EXTENSION
-        var state = IslandStorage.load()
-        if state.partner != nil {
-            state.activity = state.activity.next
-        } else {
-            let all = SoloPose.allCases
-            let index = all.firstIndex(of: state.pose) ?? 0
-            state.pose = all[(index + 1) % all.count]
+        await IslandController.modify { state in
+            if state.partner != nil {
+                state.activity = state.activity.next
+            } else {
+                let all = SoloPose.allCases
+                let index = all.firstIndex(of: state.pose) ?? 0
+                state.pose = all[(index + 1) % all.count]
+            }
+            state.isSleeping = false
         }
-        state.isSleeping = false
-        IslandStorage.save(state)
-        await IslandController.update(state)
-        #endif
         return .result()
     }
 }
@@ -68,12 +59,9 @@ struct StopFocusIntent: LiveActivityIntent {
     static let isDiscoverable = false
 
     func perform() async throws -> some IntentResult {
+        await IslandController.modify { $0.focus = nil }
         #if !WIDGET_EXTENSION
-        var state = IslandStorage.load()
-        state.focus = nil
-        IslandStorage.save(state)
         FocusNotifications.cancel()
-        await IslandController.update(state)
         #endif
         return .result()
     }

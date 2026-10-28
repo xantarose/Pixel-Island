@@ -7,12 +7,16 @@ import SwiftUI
 /// Sizes of every place a pet appears. `pixel` = points per art pixel;
 /// multiples of 1/3 stay sharp on 3x screens.
 enum StageLayout {
-    case compact, minimal, expanded, lockScreen
+    case compact, compactNarrow, minimal, expanded, lockScreen
+
+    static func compact(for state: IslandState) -> StageLayout {
+        state.islandWidth == .narrow ? .compactNarrow : .compact
+    }
 
     var width: Int {
         switch self {
         case .compact: return 24
-        case .minimal: return 16
+        case .compactNarrow, .minimal: return 16
         case .expanded: return 84
         case .lockScreen: return 110
         }
@@ -20,14 +24,14 @@ enum StageLayout {
 
     var height: Int {
         switch self {
-        case .compact, .minimal: return 16
+        case .compact, .compactNarrow, .minimal: return 16
         case .expanded, .lockScreen: return 20
         }
     }
 
     var pixel: CGFloat {
         switch self {
-        case .compact, .minimal: return 4.0 / 3.0
+        case .compact, .compactNarrow, .minimal: return 4.0 / 3.0
         case .expanded: return 2
         case .lockScreen: return 7.0 / 3.0
         }
@@ -74,12 +78,13 @@ struct CompactLeadingView: View {
     let mode: PlaybackMode
 
     var body: some View {
+        let layout = StageLayout.compact(for: state)
         StageView(
-            script: Scripts.compact(for: state, partnerSide: false, width: StageLayout.compact.width, height: StageLayout.compact.height),
+            script: Scripts.compact(for: state, partnerSide: false, width: layout.width, height: layout.height),
             me: state.me.sprite,
             partner: nil,
             effect: state.resolvedEffect,
-            pixel: StageLayout.compact.pixel,
+            pixel: layout.pixel,
             mode: mode
         )
     }
@@ -91,6 +96,7 @@ struct CompactTrailingView: View {
     let mode: PlaybackMode
 
     var body: some View {
+        let layout = StageLayout.compact(for: state)
         if let focus = state.focus, state.isFocusing(isStale: isStale) {
             Text(timerInterval: focus.interval, countsDown: true)
                 .font(Theme.pixelFont(12))
@@ -100,15 +106,45 @@ struct CompactTrailingView: View {
                 .frame(width: 42)
         } else if let partner = state.partner {
             StageView(
-                script: Scripts.compact(for: state, partnerSide: true, width: StageLayout.compact.width, height: StageLayout.compact.height),
+                script: Scripts.compact(for: state, partnerSide: true, width: layout.width, height: layout.height),
                 me: partner.sprite,
                 partner: partner.sprite,
                 effect: state.resolvedEffect,
-                pixel: StageLayout.compact.pixel,
+                pixel: layout.pixel,
                 mode: mode
             )
-        } else {
-            PixelHeart(pixel: 2)
+        } else if state.badge != .none || state.effectScope == .island {
+            ZStack {
+                if state.effectScope == .island {
+                    EffectLayer(
+                        effect: state.resolvedEffect,
+                        width: layout.width,
+                        height: layout.height,
+                        pixel: layout.pixel,
+                        mode: mode
+                    )
+                }
+                BadgeView(badge: state.badge, pixel: 2, mode: mode)
+            }
+            .frame(width: CGFloat(layout.width) * layout.pixel, height: CGFloat(layout.height) * layout.pixel)
+            .clipped()
+        }
+    }
+}
+
+/// Particles behind a whole region when "На весь островок" is on.
+struct IslandEffectBackground: View {
+    let state: IslandState
+    let width: Int
+    let height: Int
+    let pixel: CGFloat
+    let mode: PlaybackMode
+
+    var body: some View {
+        if state.effectScope == .island {
+            EffectLayer(effect: state.resolvedEffect, width: width, height: height, pixel: pixel, mode: mode)
+                .frame(width: CGFloat(width) * pixel, height: CGFloat(height) * pixel)
+                .clipped()
         }
     }
 }
@@ -134,6 +170,7 @@ struct MinimalIslandView: View {
 
 struct ExpandedLeadingView: View {
     let state: IslandState
+    var mode: PlaybackMode = .liveActivity
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -147,11 +184,17 @@ struct ExpandedLeadingView: View {
                 .lineLimit(1)
         }
         .padding(.leading, 6)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            IslandEffectBackground(state: state, width: 40, height: 22, pixel: 2, mode: mode)
+        }
+        .clipped()
     }
 }
 
 struct ExpandedTrailingView: View {
     let state: IslandState
+    var mode: PlaybackMode = .liveActivity
 
     var body: some View {
         VStack(alignment: .trailing, spacing: 2) {
@@ -173,6 +216,11 @@ struct ExpandedTrailingView: View {
             }
         }
         .padding(.trailing, 6)
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .background {
+            IslandEffectBackground(state: state, width: 40, height: 22, pixel: 2, mode: mode)
+        }
+        .clipped()
     }
 }
 
@@ -293,6 +341,10 @@ struct LockScreenIslandView: View {
             }
         }
         .padding(14)
+        .background {
+            IslandEffectBackground(state: state, width: 160, height: 46, pixel: 7.0 / 3.0, mode: mode)
+        }
+        .clipped()
     }
 
     private var title: some View {

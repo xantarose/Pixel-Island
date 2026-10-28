@@ -1944,6 +1944,622 @@ enum SpriteCatalog {
             ]
         ),
         PetSpriteData(
+            id: "cat.bombay",
+            name: "Бомбей",
+            group: .cats,
+            palette: ["o": 0x0B090E, "B": 0x26222E, "D": 0x1A1720, "L": 0x3A3546, "P": 0xC97A93, "E": 0xE8A23A, "F": 0xE8A23A, "K": 0x8C82A0, "G": 0x1A1720, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0x4A4458, "Q": 0x17141C],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHoBBBBBBBBBBo...oHQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLooQBBBBBBBBBBLLLo.oQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oHo..oHo........oPHooHPo...ooooooBBHHBBo.ooHHHHHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oHo..oHo....ooo.oPHooHPo...oHHHooBBHHBBo.ooHBBBHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oHo..oHo..ooHHHooPHooHPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooHo..oHo..oHHHHHoPHooHPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oHo.............oBo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    "..................................................o..............oHo............oHo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo..oHHHHHoBBLLBQo.oHBBBBBHBBBLLo..HQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBEBBFBoH..ooooooBEPPFBHQ.oHHHHHoBBLLBBQooHBBBBBHBBBLLBo.HQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.panther",
+            name: "Пантера",
+            group: .cats,
+            palette: ["o": 0x0B090E, "B": 0x2A2733, "D": 0x1A1820, "L": 0x3C3848, "P": 0xC97A93, "E": 0x8BE07A, "F": 0x8BE07A, "K": 0x8C82A0, "G": 0x1A1820, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0x524C66, "Q": 0x18161E],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHoBBBBBBBBBBo...oHQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLooQBBBBBBBBBBLLLo.oQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oHo..oHo........oPHooHPo...ooooooBBHHBBo.ooHHHHHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oHo..oHo....ooo.oPHooHPo...oHHHooBBHHBBo.ooHBBBHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oHo..oHo..ooHHHooPHooHPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooHo..oHo..oHHHHHoPHooHPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oHo.............oBo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    "..................................................o..............oHo............oHo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo..oHHHHHoBBLLBQo.oHBBBBBHBBBLLo..HQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBEBBFBoH..ooooooBEPPFBHQ.oHHHHHoBBLLBBQooHBBBBBHBBBLLBo.HQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.blackfluffy",
+            name: "Чёрный пушок",
+            group: .cats,
+            palette: ["o": 0x0B090E, "B": 0x2C2935, "D": 0x1A1820, "L": 0x3E3A4A, "P": 0xC97A93, "E": 0xF2B33D, "F": 0xF2B33D, "K": 0x8C82A0, "G": 0x1A1820, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0x55506A, "Q": 0x19171F],
+            poses: [
+                "walk": [
+                    ".........................................o....o.........oDo..oDo........oBDooDBo.ooo....oPBooBPooHHHo...oBBHHBBoHBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................o....o.........oDo..oDo........oBDooDBo.ooo....oPBooBPooHHHo...oBBHHBBoHBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................o....o.........oDo..oDoooo.....oBDooDBoHHHo....oPBooBPoBBBo....oBBHHBBoBBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................o....o.........oDo..oDoooo.....oBDooDBoHHHo....oPBooBPoBBBo....oBBHHBBoBBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHHBBBBBBBBBBo..oQQQQQQQQQQQQo...oooooooooooo...",
+                    "........................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHHBBBBBBBBBBo..oQQQQQQQQQQQQo...oooooooooooo...",
+                    "........................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo..oooHBBBBBBBBBo..HHHBBBBBBBBBBo..ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLoQQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBooo.ooooooBEPPFBoHHoHHHHHHBBLLBBoBBHBBBBBBBBBBLLoQQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLoQQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo...ooooooBBHHBBooooHHHHHoBBBBBBoHHHBBBBBHKKPPKKoQQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................o....o.........oDo..oDo........oBDooDBo....ooo.oPBooBPo...oHHHooBBHHBBooooHBBBHoBBBBBBoHHHBBBBBHKKPPKKoQQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................o....o.........oDo..oDo....ooo.oBDooDBo..ooHHHooPBooBPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................o....o.........oDo..oDo...ooooooBDooDBo..oHHHHHoPBooBPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBoo.......oBBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo...oooBBBBBBBBo...oHHHBBBBBBBBo...oQQQQQQQQQQQo....ooooooooooo....",
+                    "........................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo...oooBBBBBBBBo...oHHHBBBBBBBBo...oQQQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    "................................................ooo.............HHHo............BBBo............QQBoo.....o....oooBHHoo..oDo..oD.oBBBHHoooBDooDB.oBBBBBHHoPBooBP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    ".................................................ooo............oHHHo...........HBBo............QQBoo.....o....oooBHHoo..oDo..oD.oBBBHHoooBDooDB.oBBBBBHHoPBooBP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHoBBLLBQo.HHBBBBBHBBBLLo..QQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBoo.......oBEBBFBoH..ooooooBEPPFBHQooHHHHHoBBLLBBQoHHBBBBBHBBBLLBo.QQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.blacklocket",
+            name: "Медальон",
+            group: .cats,
+            palette: ["o": 0x0B090E, "B": 0x2A2733, "D": 0x1A1820, "L": 0xF4F2F7, "P": 0xC97A93, "E": 0xF5D547, "F": 0xF5D547, "K": 0x8C82A0, "G": 0x1A1820, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0x504A63, "Q": 0x18161E],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHoBBBBBBBBBBo...oHQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLooQBBBBBBBBBBLLLo.oQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oHo..oHo........oPHooHPo...ooooooBBHHBBo.ooHHHHHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oHo..oHo....ooo.oPHooHPo...oHHHooBBHHBBo.ooHBBBHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oHo..oHo..ooHHHooPHooHPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooHo..oHo..oHHHHHoPHooHPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oHo.............oBo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    "..................................................o..............oHo............oHo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo..oHHHHHoBBLLBQo.oHBBBBBHBBBLLo..HQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBEBBFBoH..ooooooBEPPFBHQ.oHHHHHoBBLLBBQooHBBBBBHBBBLLBo.HQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.blacksocks",
+            name: "Чёрные носочки",
+            group: .cats,
+            palette: ["o": 0x0B090E, "B": 0x2A2733, "D": 0x1A1820, "L": 0xF4F2F7, "P": 0xC97A93, "E": 0x7CD67A, "F": 0x7CD67A, "K": 0x8C82A0, "G": 0x1A1820, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0x504A63, "Q": 0x18161E],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oLo..oLoLo..oLo..o....o.o....o.",
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oLooLo.oLooLo....o..o...o..o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oLoLo..oLoLo.....o.o....o.o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oLooLo.oLooLo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQLLo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQLLo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHoBBBBBBBBBBo...oHQQQQQQQQLLo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQLLLL..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLooQBBBBBBBBBBLLLo.oQQQQQQQQQQLLLL..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQLLLL..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oHo..oHo........oPHooHPo...ooooooBBHHBBo.ooHHHHHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQLLLL..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oHo..oHo....ooo.oPHooHPo...oHHHooBBHHBBo.ooHBBBHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQLLLL..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oHo..oHo..ooHHHooPHooHPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooHo..oHo..oHHHHHoPHooHPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBBBBBBoL......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQLo....ooooooooooo....",
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHL.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQLo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oHo.............oBo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oLLo.....oLLLLL..oo.......ooooo",
+                    "..................................................o..............oHo............oHo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oLLo.....oLLLLL..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo..oHHHHHoBBLLBQo.oHBBBBBHBBBLLo..HQBBBBBBBBBLLLooooQQQQQQQQQQLLLL..oooooooooooooo",
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBEBBFBoL..ooooooBEPPFBHQ.oHHHHHoBBLLBBQooHBBBBBHBBBLLBo.HQBBBBBBBBBLLLo.ooQQQQQQQQQLLo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.blacksmoke",
+            name: "Чёрный дым",
+            group: .cats,
+            palette: ["o": 0x141219, "B": 0x3B3946, "D": 0x24222B, "L": 0x55525F, "P": 0xC97A93, "E": 0xF2C94C, "F": 0xF2C94C, "K": 0xA59FB2, "G": 0x24222B, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0x77738A, "Q": 0x24222B],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oHo..oHo.ooo....oPHooHPooHHHo...oBBHHBBoHBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oHo..oHo.ooo....oPHooHPooHHHo...oBBHHBBoHBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o.ooo.....oHo..oHoHHHo....oPHooHPoBBBo....oBBHHBBoBBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o.ooo.....oHo..oHoHHHo....oPHooHPoBBBo....oBBHHBBoBBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHHBBBBBBBBBBo..oQQQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHHBBBBBBBBBBo..oQQQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo..oooHBBBBBBBBBo..HHHBBBBBBBBBBo..ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLoQQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBooo.ooooooBEPPFBoHHoHHHHHHBBLLBBoBBHBBBBBBBBBBLLoQQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLoQQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oHo..oHo........oPHooHPo...ooooooBBHHBBooooHHHHHoBBBBBBoHHHBBBBBHKKPPKKoQQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oHo..oHo....ooo.oPHooHPo...oHHHooBBHHBBooooHBBBHoBBBBBBoHHHBBBBBHKKPPKKoQQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oHo..oHo..ooHHHooPHooHPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooHo..oHo..oHHHHHoPHooHPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo...oooBBBBBBBBo...oHHHBBBBBBBBo...oQQQQQQQQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo...oooBBBBBBBBo...oHHHBBBBBBBBo...oQQQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    "................................................ooo.............HHHo............BBBo............QQBoo...........ooBHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    ".................................................ooo............oHHHo...........HBBo............QQBoo...........ooBHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHoBBLLBQo.HHBBBBBHBBBLLo..QQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBEBBFBoH..ooooooBEPPFBHQooHHHHHoBBLLBBQoHHBBBBBHBBBLLBo.QQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.oreo",
+            name: "Орео",
+            group: .cats,
+            palette: ["o": 0x0B090E, "B": 0x2A2733, "D": 0x1A1820, "L": 0xF7F5F2, "P": 0xE68AA6, "E": 0x4FA3F7, "F": 0x4FA3F7, "K": 0x8C82A0, "G": 0x1A1820, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0x504A63, "Q": 0x18161E],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBELLFBooQo.oooooBEPPFBo.oHoHHHHHBLLLLBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oLooLoooLooLo..oLo..oLoLo..oLo..o....o.o....o.",
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBELLFBooQo.oooooBEPPFBo.oHoHHHHHBLLLLBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oLooLoooLooLo...oLooLo.oLooLo....o..o...o..o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBELLFBooQo.oooooBEPPFBo.oHoHHHHHBLLLLBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oLoLooooLoLo....oLoLo..oLoLo.....o.o....o.o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBELLFBooQo.oooooBEPPFBo.oHoHHHHHBLLLLBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oLooLoooLooLo...oLooLo.oLooLo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBELLFBo.......ooBEPPFBo......oHHBLLLLBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBLLo....oHBBBBBBBLLo...ooBBBBBBBBLLo..oHHQQQQQQQQLLo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBLLBBo.......ooKKPPKKo......oHHBLLLLBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBLLo....oHBBBBBBBLLo...ooBBBBBBBBLLo..oHHQQQQQQQQLLo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBELLFBo.......ooBEPPFBo......oHHBLLLLBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBLLo...ooHBBBBBBBLLo..oHoBBBBBBBBLLo...oHQQQQQQQQLLo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBELLFBo...ooooooBEPPFBo.ooHHHHHHBLLLLBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQLLLL..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBELLFBo...ooooooBEPPFBooooHHHHHHBLLLLBoHHHBBBBBBBBBBLLooQBBBBBBBBBBLLLo.oQQQQQQQQQQLLLL..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBLLBBo...ooooooKKPPKKo.ooHHHHHHBLLLLBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQLLLL..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oHo..oHo........oPHooHPo...ooooooBBHHBBo.ooHHHHHoBBLLBBooHHBBBBBHKKPPKKoHQBBBBBBBBLLLLBoooQQQQQQQQQQLLLL..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oHo..oHo....ooo.oPHooHPo...oHHHooBBHHBBo.ooHBBBHoBBLLBBooHHBBBBBHKKPPKKoHQBBBBBBBBLLLLBoooQQQQQQQQQQLLLL..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oHo..oHo..ooHHHooPHooHPo.oHHBBBHHBBHHBBooHBBBBBBBBBLLBBooBBBBBBBBKKPPKKooQBBBBBBBBLLLLBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooHo..oHo..oHHHHHoPHooHPo.oHBBBBBHBBHHBBooHBBBBBBBBBLLBBooBBBBBBBBKKPPKKooQBBBBBBBBLLLLBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBBLLBBoL......ooKKPPKKLL.....oHHBLLLLBLo....oHBBBBBLLLo....oHBBBBBLLLo.....oBBBBBBBLo....ooHBBBBBBBLo...oHHQQQQQQQQLo....ooooooooooo....",
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBLLBBoo......ooKKPPKKLL.....oHHBLLLLBLo....oHBBBBBLLLo....oHBBBBBLLLo.....oBBBBBBBLo....ooHBBBBBBBLo...oHHQQQQQQQQLo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oHo.............oBo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oLLQQBBBHBBHHBB.oLLooQQBBBELLFB.oLLo.ooQQBEPPFB.oLLo...ooQLLLLB.oLLo.....oLLLLL..oo.......ooooo",
+                    "..................................................o..............oHo............oHo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oLLQQBBBHBBHHBB.oLLooQQBBBELLFB.oLLo.ooQQBEPPFB.oLLo...ooQLLLLB.oLLo.....oLLLLL..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBELLFBo...ooooooBEPPFBo..oHHHHHoBLLLLQo.oHBBBBBHBBBLLo..HQBBBBBBBBBLLLooooQQQQQQQQQQLLLL..oooooooooooooo",
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBELLFBoL..ooooooBEPPFBLL.oHHHHHoBLLLLBLooHBBBBBHBBBLLLo.HQBBBBBBBBBLLLo.ooQQQQQQQQQLLo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.snowwhite",
+            name: "Белоснежка",
+            group: .cats,
+            palette: ["o": 0x6E6880, "B": 0xF6F4F1, "D": 0xD8D3E0, "L": 0xFFFFFF, "P": 0xF6A0B6, "E": 0x4FA3F7, "F": 0x4FA3F7, "K": 0x6E6880, "G": 0xD8D3E0, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0xFFFFFF, "Q": 0xDCD7E5],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHoBBBBBBBBBBo...oHQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLooQBBBBBBBBBBLLLo.oQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oHo..oHo........oPHooHPo...ooooooBBHHBBo.ooHHHHHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oHo..oHo....ooo.oPHooHPo...oHHHooBBHHBBo.ooHBBBHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oHo..oHo..ooHHHooPHooHPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooHo..oHo..oHHHHHoPHooHPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oHo.............oBo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    "..................................................o..............oHo............oHo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo..oHHHHHoBBLLBQo.oHBBBBBHBBBLLo..HQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBEBBFBoH..ooooooBEPPFBHQ.oHHHHHoBBLLBBQooHBBBBBHBBBLLBo.HQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.whitefluffy",
+            name: "Белый пушок",
+            group: .cats,
+            palette: ["o": 0x6E6880, "B": 0xF7F5F2, "D": 0xD8D3E0, "L": 0xFFFFFF, "P": 0xF6A0B6, "E": 0xF2B33D, "F": 0xF2B33D, "K": 0x6E6880, "G": 0xD8D3E0, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0xFFFFFF, "Q": 0xDDD8E6],
+            poses: [
+                "walk": [
+                    ".........................................o....o.........oDo..oDo........oBDooDBo.ooo....oPBooBPooHHHo...oBBHHBBoHBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................o....o.........oDo..oDo........oBDooDBo.ooo....oPBooBPooHHHo...oBBHHBBoHBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................o....o.........oDo..oDoooo.....oBDooDBoHHHo....oPBooBPoBBBo....oBBHHBBoBBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................o....o.........oDo..oDoooo.....oBDooDBoHHHo....oPBooBPoBBBo....oBBHHBBoBBBo....oBEBBFBoQBBooooooBEPPFBooBBHHHHHHBBLLBBooQQBBBBBBBBBBLLo.ooBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHHBBBBBBBBBBo..oQQQQQQQQQQQQo...oooooooooooo...",
+                    "........................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHHBBBBBBBBBBo..oQQQQQQQQQQQQo...oooooooooooo...",
+                    "........................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo..oooHBBBBBBBBBo..HHHBBBBBBBBBBo..ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLoQQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBooo.ooooooBEPPFBoHHoHHHHHHBBLLBBoBBHBBBBBBBBBBLLoQQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLoQQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo...ooooooBBHHBBooooHHHHHoBBBBBBoHHHBBBBBHKKPPKKoQQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................o....o.........oDo..oDo........oBDooDBo....ooo.oPBooBPo...oHHHooBBHHBBooooHBBBHoBBBBBBoHHHBBBBBHKKPPKKoQQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................o....o.........oDo..oDo....ooo.oBDooDBo..ooHHHooPBooBPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................o....o.........oDo..oDo...ooooooBDooDBo..oHHHHHoPBooBPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBoo.......oBBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo...oooBBBBBBBBo...oHHHBBBBBBBBo...oQQQQQQQQQQQo....ooooooooooo....",
+                    "........................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo...oooBBBBBBBBo...oHHHBBBBBBBBo...oQQQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    "................................................ooo.............HHHo............BBBo............QQBoo.....o....oooBHHoo..oDo..oD.oBBBHHoooBDooDB.oBBBBBHHoPBooBP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    ".................................................ooo............oHHHo...........HBBo............QQBoo.....o....oooBHHoo..oDo..oD.oBBBHHoooBDooDB.oBBBBBHHoPBooBP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHoBBLLBQo.HHBBBBBHBBBLLo..QQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................o....o.........oDo..oDo........oBDooDBo........oPBooBPo........oBBHHBBoo.......oBEBBFBoH..ooooooBEPPFBHQooHHHHHoBBLLBBQoHHBBBBBHBBBLLBo.QQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.whiteemerald",
+            name: "Белый изумруд",
+            group: .cats,
+            palette: ["o": 0x6E6880, "B": 0xF5F3F0, "D": 0xD8D3E0, "L": 0xFFFFFF, "P": 0xF6A0B6, "E": 0x3FCF8E, "F": 0x3FCF8E, "K": 0x6E6880, "G": 0xD8D3E0, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0xFFFFFF, "Q": 0xDAD5E2],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oHo....oBBHHBBooHo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o..o......oHo..oHooHo.....oPHooHPooBo.....oBBHHBBooBo.....oBEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHoBBBBBBBBBBo...oHQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLooQBBBBBBBBBBLLLo.oQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oHo..oHo........oPHooHPo...ooooooBBHHBBo.ooHHHHHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oHo..oHo....ooo.oPHooHPo...oHHHooBBHHBBo.ooHBBBHoBBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oHo..oHo..ooHHHooPHooHPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooHo..oHo..oHHHHHoPHooHPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oHo.............oBo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    "..................................................o..............oHo............oHo.............oQooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo..oHHHHHoBBLLBQo.oHBBBBBHBBBLLo..HQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBEBBFBoH..ooooooBEPPFBHQ.oHHHHHoBBLLBBQooHBBBBBHBBBLLBo.HQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.whitecap",
+            name: "Белый в шапочке",
+            group: .cats,
+            palette: ["o": 0x3E3A48, "B": 0xF6F4F1, "D": 0x2A2733, "L": 0xFFFFFF, "P": 0xF6A0B6, "E": 0x7CD67A, "F": 0x7CD67A, "K": 0x3E3A48, "G": 0x2A2733, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0xFFFFFF, "Q": 0xDCD7E5],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oDo..oDo..o.....oPDooDPo.oHo....oDDDDBBooHo.....oDEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oDo..oDo..o.....oPDooDPo.oHo....oDDDDBBooHo.....oDEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o..o......oDo..oDooHo.....oPDooDPooBo.....oDDDDBBooBo.....oDEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o..o......oDo..oDooHo.....oPDooDPooBo.....oDDDDBBooBo.....oDEBBFBooQo.oooooBEPPFBo.oHoHHHHHBBLLBBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBo........oDEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBo........oDBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBo........oDEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHoBBBBBBBBBBo...oHQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBo........oDEBBFBo...ooooooBEPPFBo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBo........oDEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoHHHBBBBBBBBBBLLooQBBBBBBBBBBLLLo.oQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBo........oDBBBBBo...ooooooKKPPKKo.ooHHHHHHBBLLBBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oDo..oDo........oPDooDPo...ooooooDDDDBBo.ooHHHHHoDBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oDo..oDo....ooo.oPDooDPo...oHHHooDDDDBBo.ooHBBBHoDBBBBBooHHBBBBBHKKPPKKoHQBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oDo..oDo..ooHHHooPDooDPo.oHHBBBHHDDDDBBooHBBBBBBBDBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooDo..oDo..oHHHHHoPDooDPo.oHBBBBBHDDDDBBooHBBBBBBBDBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBoo.......oDBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBo........oDBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oHo.............oBo.............oQooo............oHHHoo...o....o.oBBBHHoooDo..oD.oBBBBBHHoPDooDP.oBBQQBBBHDDDDBB.oBBooQQBBDEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    "..................................................o..............oHo............oHo.............oQooo............oHHHoo...o....o.oBBBHHoooDo..oD.oBBBBBHHoPDooDP.oBBQQBBBHDDDDBB.oBBooQQBBDEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBo........oDEBBFBo...ooooooBEPPFBo..oHHHHHoBBLLBQo.oHBBBBBHBBBLLo..HQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDDDBBoo.......oDEBBFBoH..ooooooBEPPFBHQ.oHHHHHoBBLLBBQooHBBBBBHBBBLLBo.HQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.whitetail",
+            name: "Белый с хвостиком",
+            group: .cats,
+            palette: ["o": 0x3E3A48, "B": 0xF6F4F1, "D": 0x2A2733, "L": 0xFFFFFF, "P": 0xF6A0B6, "E": 0x4FA3F7, "F": 0x4FA3F7, "K": 0x3E3A48, "G": 0x2A2733, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0xFFFFFF, "Q": 0xDCD7E5],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oDo....oBBHHBBooDo.....oBEBBFBooDo.oooooBEPPFBo.oDoHHHHHBBLLBBo.oDHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oHo..oHo..o.....oPHooHPo.oDo....oBBHHBBooDo.....oBEBBFBooDo.oooooBEPPFBo.oDoHHHHHBBLLBBo.oDHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o..o......oHo..oHooDo.....oPHooHPooDo.....oBBHHBBooDo.....oBEBBFBooDo.oooooBEPPFBo.oDoHHHHHBBLLBBo.oDHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o..o......oHo..oHooDo.....oPHooHPooDo.....oBBHHBBooDo.....oBEBBFBooDo.oooooBEPPFBo.oDoHHHHHBBLLBBo.oDHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oDDDDDDDQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oDDDDDDDQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oDoBBBBBBBBBBo...oDDDDDDQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo.ooHHHHHHBBLLBBooDHBBBBBBBBBBLLoDDBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoDDHBBBBBBBBBBLLooDBBBBBBBBBBLLLo.oQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBo...ooooooKKPPKKo.ooHHHHHHBBLLBBooDHBBBBBBBBBBLLoDDBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oHo..oHo........oPHooHPo...ooooooBBHHBBo.ooHHHHHoBBBBBBooDHBBBBBHKKPPKKoDDBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oHo..oHo....ooo.oPHooHPo...oHHHooBBHHBBo.ooHBBBHoBBBBBBooDHBBBBBHKKPPKKoDDBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oHo..oHo..ooHHHooPHooHPo.oHHBBBHHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oDDDDDDDDDDDDDo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooHo..oHo..oHHHHHoPHooHPo.oHBBBBBHBBHHBBooHBBBBBBBBBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oDDDDDDDDDDDDDo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oDDDDDDDQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oDDDDDDDQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oDo.............oDo.............oDooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    "..................................................o..............oDo............oDo.............oDooo............oHHHoo...o....o.oBBBHHoooHo..oH.oBBBBBHHoPHooHP.oBBQQBBBHBBHHBB.oBBooQQBBBEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBo........oBEBBFBo...ooooooBEPPFBo..oHHHHHoBBLLBQo.oDBBBBBHBBBLLo..DDBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oHo..oHo........oPHooHPo........oBBHHBBoo.......oBEBBFBoH..ooooooBEPPFBHQ.oHHHHHoBBLLBBQooDBBBBBHBBBLLBo.DDBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.whitemask",
+            name: "Масочка",
+            group: .cats,
+            palette: ["o": 0x3E3A48, "B": 0xF6F4F1, "D": 0x2A2733, "L": 0xFFFFFF, "P": 0xF6A0B6, "E": 0xF2B33D, "F": 0xF2B33D, "K": 0x3E3A48, "G": 0x2A2733, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0xFFFFFF, "Q": 0xDCD7E5],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oDo..oDo..o.....oPDooDPo.oHo....oDDHHBBooHo.....oDEDDFBooQo.oooooBEPPFBo.oHoHHHHHBDLLDBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oDo..oDo..o.....oPDooDPo.oHo....oDDHHBBooHo.....oDEDDFBooQo.oooooBEPPFBo.oHoHHHHHBDLLDBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o..o......oDo..oDooHo.....oPDooDPooBo.....oDDHHBBooBo.....oDEDDFBooQo.oooooBEPPFBo.oHoHHHHHBDLLDBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o..o......oDo..oDooHo.....oPDooDPooBo.....oDDHHBBooBo.....oDEDDFBooQo.oooooBEPPFBo.oHoHHHHHBDLLDBo.oQHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBo........oDEDDFBo.......ooBEPPFBo......oHHBDLLDBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBo........oDBDDBBo.......ooKKPPKKo......oHHBDLLDBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oHHQQQQQQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBo........oDEDDFBo.......ooBEPPFBo......oHHBDLLDBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oHoBBBBBBBBBBo...oHQQQQQQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBo........oDEDDFBo...ooooooBEPPFBo.ooHHHHHHBDLLDBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBo........oDEDDFBo...ooooooBEPPFBooooHHHHHHBDLLDBoHHHBBBBBBBBBBLLooQBBBBBBBBBBLLLo.oQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBo........oDBDDBBo...ooooooKKPPKKo.ooHHHHHHBDLLDBooHHBBBBBBBBBBLLoHQBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oDo..oDo........oPDooDPo...ooooooDDHHBBo.ooHHHHHoDBDDBBooHHBBBBBHKKPPKKoHQBBBBBBBBDLLDBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oDo..oDo....ooo.oPDooDPo...oHHHooDDHHBBo.ooHBBBHoDBDDBBooHHBBBBBHKKPPKKoHQBBBBBBBBDLLDBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oDo..oDo..ooHHHooPDooDPo.oHHBBBHHDDHHBBooHBBBBBBBDBDDBBooBBBBBBBBKKPPKKooQBBBBBBBBDLLDBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooDo..oDo..oHHHHHoPDooDPo.oHBBBBBHDDHHBBooHBBBBBBBDBDDBBooBBBBBBBBKKPPKKooQBBBBBBBBDLLDBo.oQQQQQQQQQQQQQo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBoo.......oDBDDBBoH......ooKKPPKKHQ.....oHHBDLLDBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBo........oDBDDBBoo......ooKKPPKKHH.....oHHBDLLDBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oHHQQQQQQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oHo.............oBo.............oQooo............oHHHoo...o....o.oBBBHHoooDo..oD.oBBBBBHHoPDooDP.oBBQQBBBHDDHHBB.oBBooQQBBDEDDFB.oBBo.ooQQBEPPFB.oBBo...ooQDLLDB.oQQo.....oQQQQQ..oo.......ooooo",
+                    "..................................................o..............oHo............oHo.............oQooo............oHHHoo...o....o.oBBBHHoooDo..oD.oBBBBBHHoPDooDP.oBBQQBBBHDDHHBB.oBBooQQBBDEDDFB.oBBo.ooQQBEPPFB.oBBo...ooQDLLDB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBo........oDEDDFBo...ooooooBEPPFBo..oHHHHHoBDLLDQo.oHBBBBBHBBBLLo..HQBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oDo..oDo........oPDooDPo........oDDHHBBoo.......oDEDDFBoH..ooooooBEPPFBHQ.oHHHHHoBDLLDBQooHBBBBBHBBBLLBo.HQBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
+            id: "cat.blackvan",
+            name: "Чёрно-белый ван",
+            group: .cats,
+            palette: ["o": 0x3E3A48, "B": 0xF6F4F1, "D": 0x2A2733, "L": 0xFFFFFF, "P": 0xF6A0B6, "E": 0x4FA3F7, "F": 0x4FA3F7, "K": 0x3E3A48, "G": 0x2A2733, "W": 0xFFFFFF, "S": 0xFFF3A0, "H": 0xFFFFFF, "Q": 0xDCD7E5],
+            poses: [
+                "walk": [
+                    ".........................................................o....o.........oGo..oGo..o.....oPGooGPo.oGo....oGGGGBBooGo.....oGEBBFBooGo.oooooBEPPFBo.oGoHHHHHBBLLBBo.oGHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oQooQoooQooQo..oHo..oHoHo..oHo..o....o.o....o.",
+                    ".........................................................o....o.........oGo..oGo..o.....oPGooGPo.oGo....oGGGGBBooGo.....oGEBBFBooGo.oooooBEPPFBo.oGoHHHHHBBLLBBo.oGHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                    ".........................................................o....o..o......oGo..oGooGo.....oPGooGPooGo.....oGGGGBBooGo.....oGEBBFBooGo.oooooBEPPFBo.oGoHHHHHBBLLBBo.oGHBBBBBBBBBLLo..oBBBBBBBBBBLo...oQBLLLLLLBQLo....oBoBooooBoBo....oQoQo..oQoQo.....o.o....o.o..",
+                    ".........................................................o....o..o......oGo..oGooGo.....oPGooGPooGo.....oGGGGBBooGo.....oGEBBFBooGo.oooooBEPPFBo.oGoHHHHHBBLLBBo.oGHBBBBBBBBBLLo..oBBBBBBBBBBLo...oBQLLLLLLQQLo...oBooBoooBooBo...oQooQo.oQooQo....o..o...o..o..",
+                ],
+                "sit": [
+                    "........................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBo........oGEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oGGGGGGGQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBo........oGBBBBBo.......ooKKPPKKo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo....oHBBBBBBBBBo...ooBBBBBBBBBBo..oGGGGGGGQQQQQo...oooooooooooo...",
+                    "........................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBo........oGEBBFBo.......ooBEPPFBo......oHHBBLLBBo.....oHBBBBBLLLo....oHBBBBBBLLLo....oBBBBBBBBBo...ooHBBBBBBBBBo..oGoBBBBBBBBBBo...oGGGGGGQQQQQo....ooooooooooo...",
+                ],
+                "loaf": [
+                    ".........................................................................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBo........oGEBBFBo...ooooooBEPPFBo.ooHHHHHHBBLLBBooGHBBBBBBBBBBLLoGGBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBo........oGEBBFBo...ooooooBEPPFBooooHHHHHHBBLLBBoGGHBBBBBBBBBBLLooGBBBBBBBBBBLLLo.oQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBo........oGBBBBBo...ooooooKKPPKKo.ooHHHHHHBBLLBBooGHBBBBBBBBBBLLoGGBBBBBBBBBBLLLoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "sleep": [
+                    ".........................................................................................................................o....o.........oGo..oGo........oPGooGPo...ooooooGGGGBBo.ooHHHHHoGBBBBBooGHBBBBBHKKPPKKoGGBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                    ".........................................................................................................................o....o.........oGo..oGo....ooo.oPGooGPo...oHHHooGGGGBBo.ooHBBBHoGBBBBBooGHBBBBBHKKPPKKoGGBBBBBBBBBLLBBoooQQQQQQQQQQQQQH..oooooooooooooo",
+                ],
+                "curl": [
+                    ".........................................................................................................................o....o.....ooo.oGo..oGo..ooHHHooPGooGPo.oHHBBBHHGGGGBBooHBBBBBBBGBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oGGGGGGGGGGGGGo..ooooooooooooo.",
+                    ".........................................................................................................................o....o....ooooooGo..oGo..oHHHHHoPGooGPo.oHBBBBBHGGGGBBooHBBBBBBBGBBBBBooBBBBBBBBKKPPKKooQBBBBBBBBBLLBBo.oGGGGGGGGGGGGGo..ooooooooooooo.",
+                ],
+                "groom": [
+                    "........................................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBoo.......oGBBBBBoH......ooKKPPKKHQ.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oGGGGGGGQQQQo....ooooooooooo....",
+                    "........................................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBo........oGBBBBBoo......ooKKPPKKHH.....oHHBBLLBBQo....oHBBBBBLLQo....oHBBBBBLLLo.....oBBBBBBBBo....ooHBBBBBBBBo...oGGGGGGGQQQQo....ooooooooooo....",
+                ],
+                "stretch": [
+                    ".................................................o..............oGo.............oGo.............oGooo............oHHHoo...o....o.oBBBHHoooGo..oG.oBBBBBHHoPGooGP.oBBQQBBBHGGGGBB.oBBooQQBBGEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                    "..................................................o..............oGo............oGo.............oGooo............oHHHoo...o....o.oBBBHHoooGo..oG.oBBBBBHHoPGooGP.oBBQQBBBHGGGGBB.oBBooQQBBGEBBFB.oBBo.ooQQBEPPFB.oBBo...ooQBLLBB.oQQo.....oQQQQQ..oo.......ooooo",
+                ],
+                "play": [
+                    "........................................................................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBo........oGEBBFBo...ooooooBEPPFBo..oHHHHHoBBLLBQo.oGBBBBBHBBBLLo..GGBBBBBBBBBLLLooooQQQQQQQQQQQQHH..oooooooooooooo",
+                    "........................................................................................o....o.........oGo..oGo........oPGooGPo........oGGGGBBoo.......oGEBBFBoH..ooooooBEPPFBHQ.oHHHHHoBBLLBBQooGBBBBBHBBBLLBo.GGBBBBBBBBBLLLo.ooQQQQQQQQQQQo....ooooooooooo...",
+                ],
+            ]
+        ),
+        PetSpriteData(
             id: "fox",
             name: "Лиса",
             group: .friends,

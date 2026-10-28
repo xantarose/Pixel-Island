@@ -7,6 +7,7 @@ struct HomeView: View {
 
     @State private var picker: PickerTarget?
     @State private var showsPairSheet = false
+    @State private var showsTimerSheet = false
 
     enum PickerTarget: String, Identifiable {
         case mine
@@ -23,6 +24,7 @@ struct HomeView: View {
                 myPetCard
                 coupleCard
                 activityCard
+                islandCard
                 modesCard
                 helpCard
             }
@@ -44,6 +46,12 @@ struct HomeView: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showsTimerSheet) {
+            FocusTimerSheet { minutes in
+                model.startFocus(minutes: minutes)
+            }
+            .presentationDetents([.medium])
         }
         .sheet(isPresented: $showsPairSheet) {
             PairSheet()
@@ -245,6 +253,49 @@ struct HomeView: View {
         }
     }
 
+    private var islandCard: some View {
+        Card(title: "Островок") {
+            sectionLabel("Ширина")
+            ChoiceGrid(
+                options: IslandWidth.allCases,
+                selection: model.state.islandWidth,
+                label: { "\($0.emoji) \($0.title)" }
+            ) { width in
+                model.mutate { $0.islandWidth = width }
+            }
+
+            sectionLabel("Значок справа")
+            ChoiceGrid(
+                options: IslandBadge.allCases,
+                selection: model.state.badge,
+                label: { "\($0.emoji) \($0.title)" }
+            ) { badge in
+                model.mutate { $0.badge = badge }
+            }
+
+            sectionLabel("Обводка")
+            KeylinePicker(selection: model.state.keyline) { color in
+                model.mutate { $0.keyline = color }
+            }
+
+            sectionLabel("Эффекты")
+            ChoiceGrid(
+                options: EffectScope.allCases,
+                selection: model.state.effectScope,
+                label: { "\($0.emoji) \($0.title)" }
+            ) { scope in
+                model.mutate { $0.effectScope = scope }
+            }
+        }
+    }
+
+    private func sectionLabel(_ text: String) -> some View {
+        Text(text)
+            .font(Theme.roundedFont(13, weight: .medium))
+            .foregroundStyle(Theme.muted)
+            .padding(.top, 2)
+    }
+
     private var modesCard: some View {
         Card(title: "Режимы") {
             if let focus = model.state.focus, !focus.isFinished() {
@@ -264,11 +315,13 @@ struct HomeView: View {
                 Text("Фокус: питомец спит, пока ты работаешь, таймер виден на островке.")
                     .font(Theme.roundedFont(15, weight: .regular))
                     .foregroundStyle(Theme.muted)
-                HStack(spacing: 8) {
-                    ForEach([15, 25, 45, 60], id: \.self) { minutes in
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 8)], spacing: 8) {
+                    ForEach([15, 25, 45, 60, 90], id: \.self) { minutes in
                         Button("\(minutes) мин") { model.startFocus(minutes: minutes) }
                             .buttonStyle(SecondaryButtonStyle(tint: Theme.peach))
                     }
+                    Button("Своё…") { showsTimerSheet = true }
+                        .buttonStyle(SecondaryButtonStyle(tint: Theme.mint))
                 }
             }
 

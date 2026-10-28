@@ -25,7 +25,10 @@ Each breed has a palette and a list of patterns. A pattern turns regions into
 palette *roles*, the only thing the Swift side knows about:
 
   o outline  B base  D dark  L light  P pink  E eye  F 2nd eye  K closed eye
-  G accent   W white S star
+  G accent   W white S star  H highlight  Q shade
+
+Breeds whose palette has H and Q get simple volume: base-coloured pixels
+on the top edge of the silhouette become H (light), on the bottom edge Q.
 
 The outline is added automatically around the silhouette.
 """
@@ -39,7 +42,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 SWIFT_OUT = os.path.join(ROOT, "Shared", "Sprites", "SpriteCatalog.generated.swift")
 PREVIEW_OUT = os.path.join(ROOT, "tools", "sprites", "preview.png")
 
-ROLES = "oBDLPEFKGWS"
+ROLES = "oBDLPEFKGWSHQ"
 POSES = ["walk", "sit", "loaf", "sleep", "curl", "groom", "stretch", "play"]
 TAIL = set("tqw")
 HEADISH = set("hyrM")
@@ -463,9 +466,13 @@ def painter(*patterns):
     return paint
 
 
-def pal(o, B, D, L, P, E, F=None, K=None, G=None, W="#FFFFFF", S="#FFF3A0"):
-    return {"o": o, "B": B, "D": D, "L": L, "P": P, "E": E, "F": F or E, "K": K or o,
-            "G": G or D, "W": W, "S": S}
+def pal(o, B, D, L, P, E, F=None, K=None, G=None, W="#FFFFFF", S="#FFF3A0", H=None, Q=None):
+    p = {"o": o, "B": B, "D": D, "L": L, "P": P, "E": E, "F": F or E, "K": K or o,
+         "G": G or D, "W": W, "S": S}
+    if H and Q:
+        p["H"] = H
+        p["Q"] = Q
+    return p
 
 
 # ------------------------------------------------------ hand-drawn friends
@@ -776,6 +783,50 @@ PETS = [
     ("cat.sakura", "Сакура", "cats", cat(),
      pal("#4A2236", "#FFD3E2", "#FF9EC2", "#FFF4F8", "#FF7FAA", "#7A3555"), painter(seeds)),
 
+    # --- black & white, with volume
+    ("cat.bombay", "Бомбей", "cats", cat(),
+     pal("#0B090E", "#26222E", "#1A1720", "#3A3546", "#C97A93", "#E8A23A", K="#8C82A0",
+         H="#4A4458", Q="#17141C"), painter()),
+    ("cat.panther", "Пантера", "cats", cat(),
+     pal("#0B090E", "#2A2733", "#1A1820", "#3C3848", "#C97A93", "#8BE07A", K="#8C82A0",
+         H="#524C66", Q="#18161E"), painter()),
+    ("cat.blackfluffy", "Чёрный пушок", "cats", cat(mods=[ears_tufted, tail_fluffy]),
+     pal("#0B090E", "#2C2935", "#1A1820", "#3E3A4A", "#C97A93", "#F2B33D", K="#8C82A0",
+         H="#55506A", Q="#19171F"), painter()),
+    ("cat.blacklocket", "Медальон", "cats", cat(),
+     pal("#0B090E", "#2A2733", "#1A1820", "#F4F2F7", "#C97A93", "#F5D547", K="#8C82A0",
+         H="#504A63", Q="#18161E"), painter(lambda r, x, y: "L" if r == "l" else None)),
+    ("cat.blacksocks", "Чёрные носочки", "cats", cat(),
+     pal("#0B090E", "#2A2733", "#1A1820", "#F4F2F7", "#C97A93", "#7CD67A", K="#8C82A0",
+         H="#504A63", Q="#18161E"), painter(white_socks)),
+    ("cat.blacksmoke", "Чёрный дым", "cats", cat(mods=[tail_fluffy]),
+     pal("#141219", "#3B3946", "#24222B", "#55525F", "#C97A93", "#F2C94C", K="#A59FB2",
+         H="#77738A", Q="#24222B"), painter()),
+    ("cat.oreo", "Орео", "cats", cat(),
+     pal("#0B090E", "#2A2733", "#1A1820", "#F7F5F2", "#E68AA6", "#4FA3F7", K="#8C82A0",
+         H="#504A63", Q="#18161E"), painter(bicolor)),
+    ("cat.snowwhite", "Белоснежка", "cats", cat(),
+     pal("#6E6880", "#F6F4F1", "#D8D3E0", "#FFFFFF", "#F6A0B6", "#4FA3F7",
+         H="#FFFFFF", Q="#DCD7E5"), painter()),
+    ("cat.whitefluffy", "Белый пушок", "cats", cat(mods=[ears_tufted, tail_fluffy]),
+     pal("#6E6880", "#F7F5F2", "#D8D3E0", "#FFFFFF", "#F6A0B6", "#F2B33D",
+         H="#FFFFFF", Q="#DDD8E6"), painter()),
+    ("cat.whiteemerald", "Белый изумруд", "cats", cat(),
+     pal("#6E6880", "#F5F3F0", "#D8D3E0", "#FFFFFF", "#F6A0B6", "#3FCF8E",
+         H="#FFFFFF", Q="#DAD5E2"), painter()),
+    ("cat.whitecap", "Белый в шапочке", "cats", cat(),
+     pal("#3E3A48", "#F6F4F1", "#2A2733", "#FFFFFF", "#F6A0B6", "#7CD67A",
+         H="#FFFFFF", Q="#DCD7E5"), painter(lambda r, x, y: "D" if r in "ayr" else None)),
+    ("cat.whitetail", "Белый с хвостиком", "cats", cat(),
+     pal("#3E3A48", "#F6F4F1", "#2A2733", "#FFFFFF", "#F6A0B6", "#4FA3F7",
+         H="#FFFFFF", Q="#DCD7E5"), painter(lambda r, x, y: "D" if r in "tqw" else None)),
+    ("cat.whitemask", "Масочка", "cats", cat(),
+     pal("#3E3A48", "#F6F4F1", "#2A2733", "#FFFFFF", "#F6A0B6", "#F2B33D",
+         H="#FFFFFF", Q="#DCD7E5"), painter(lambda r, x, y: "D" if r in "ayM" else None)),
+    ("cat.blackvan", "Чёрно-белый ван", "cats", cat(),
+     pal("#3E3A48", "#F6F4F1", "#2A2733", "#FFFFFF", "#F6A0B6", "#4FA3F7", G="#2A2733",
+         H="#FFFFFF", Q="#DCD7E5"), painter(van)),
+
     # --- friends
     ("fox", "Лиса", "friends", cat(mods=[ears_big, tail_fluffy]),
      pal("#2B1408", "#F27A2E", "#3A2318", "#FFF4E8", "#2B1408", "#2B1408", K="#2B1408"), painter(fox_marks)),
@@ -806,20 +857,31 @@ PETS = [
 
 # --------------------------------------------------------------- output
 
-def finalize(g, paint):
-    """Outline + region->role. Returns one 256-char string ('.' = empty)."""
+def finalize(g, paint, shaded=False):
+    """Outline + region->role (+ optional shading). One 256-char string."""
     lined = add_outline(g)
-    out = []
+    roles = [["."] * SIZE for _ in range(SIZE)]
     for y in range(SIZE):
         for x in range(SIZE):
             c = lined[y][x]
             if c in ".o":
-                out.append(c)
+                roles[y][x] = c
             else:
                 role = paint(c, x, y)
                 assert role in ROLES, f"bad role {role!r} for region {c!r}"
-                out.append(role)
-    return "".join(out)
+                roles[y][x] = role
+    if shaded:
+        def empty(y, x):
+            return not (0 <= y < SIZE and 0 <= x < SIZE) or lined[y][x] in ".o"
+        for y in range(SIZE):
+            for x in range(SIZE):
+                if roles[y][x] != "B":
+                    continue
+                if empty(y - 1, x):
+                    roles[y][x] = "H"
+                elif empty(y + 1, x):
+                    roles[y][x] = "Q"
+    return "".join("".join(r) for r in roles)
 
 
 def build():
@@ -829,7 +891,8 @@ def build():
         assert pid not in ids, pid
         ids.add(pid)
         assert "walk" in frames and "sit" in frames and "sleep" in frames, pid
-        done = {pose: [finalize(g, paint) for g in frames[pose]] for pose in POSES if pose in frames}
+        shaded = "H" in palette
+        done = {pose: [finalize(g, paint, shaded) for g in frames[pose]] for pose in POSES if pose in frames}
         pets.append((pid, name, group, palette, done))
     return pets
 

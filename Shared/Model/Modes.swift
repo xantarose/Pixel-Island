@@ -122,3 +122,113 @@ enum AtmosphereEffect: String, Codable, CaseIterable, Hashable {
         }
     }
 }
+
+/// How wide the compact island gets.
+enum IslandWidth: String, Codable, CaseIterable, Hashable {
+    /// As close to the empty system island as possible: pets stay in place.
+    case narrow
+    /// Pets walk a few steps; the island grows a bit.
+    case wide
+
+    var title: String {
+        switch self {
+        case .narrow: return "Узкий"
+        case .wide: return "Широкий"
+        }
+    }
+
+    var emoji: String {
+        switch self {
+        case .narrow: return "💊"
+        case .wide: return "🛋️"
+        }
+    }
+}
+
+/// Little picture on the right side of the island (when there is no
+/// partner pet or timer to show there).
+enum IslandBadge: String, Codable, CaseIterable, Hashable {
+    case none, heart, heartbeat, redHeart, whiteHeart, twoHearts, sparkle, star, moon, paw, sakura
+
+    var title: String {
+        switch self {
+        case .none: return "Ничего"
+        case .heart: return "Сердечко"
+        case .heartbeat: return "Бьётся"
+        case .redHeart: return "Красное"
+        case .whiteHeart: return "Белое"
+        case .twoHearts: return "Два сердца"
+        case .sparkle: return "Блёстка"
+        case .star: return "Звезда"
+        case .moon: return "Луна"
+        case .paw: return "Лапка"
+        case .sakura: return "Сакура"
+        }
+    }
+
+    var emoji: String {
+        switch self {
+        case .none: return "▫️"
+        case .heart: return "🩷"
+        case .heartbeat: return "💓"
+        case .redHeart: return "❤️"
+        case .whiteHeart: return "🤍"
+        case .twoHearts: return "💕"
+        case .sparkle: return "✨"
+        case .star: return "⭐"
+        case .moon: return "🌙"
+        case .paw: return "🐾"
+        case .sakura: return "🌸"
+        }
+    }
+}
+
+/// Colour of the thin outline iOS draws around the island.
+enum KeylineColor: String, Codable, CaseIterable, Hashable {
+    case pink, red, peach, gold, mint, sky, lavender, white
+
+    var title: String {
+        switch self {
+        case .pink: return "Розовая"
+        case .red: return "Красная"
+        case .peach: return "Персик"
+        case .gold: return "Золото"
+        case .mint: return "Мята"
+        case .sky: return "Небо"
+        case .lavender: return "Лаванда"
+        case .white: return "Белая"
+        }
+    }
+
+    var hex: UInt32 {
+        switch self {
+        case .pink: return 0xFF7FA8
+        case .red: return 0xFF3B5C
+        case .peach: return 0xFF9F7A
+        case .gold: return 0xFFD45E
+        case .mint: return 0x8FE3B0
+        case .sky: return 0x7FB8FF
+        case .lavender: return 0xB89CFF
+        case .white: return 0xFFFFFF
+        }
+    }
+}
+
+/// Where particles fall: just around the pet, or across the whole island.
+enum EffectScope: String, Codable, CaseIterable, Hashable {
+    case pet, island
+
+    var title: String {
+        switch self {
+        case .pet: return "Вокруг котика"
+        case .island: return "На весь островок"
+        }
+    }
+
+    var emoji: String {
+        switch self {
+        case .pet: return "🐈"
+        case .island: return "🏝️"
+        }
+    }
+}

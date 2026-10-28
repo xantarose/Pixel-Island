@@ -10,13 +10,17 @@ struct IslandPreview: View {
             // Fake Dynamic Island: black pill, pet on the left, partner/timer on the right.
             HStack(spacing: 0) {
                 CompactLeadingView(state: state, mode: .inApp)
-                Spacer(minLength: 70)
+                // The camera sits here; the real island is ~126 pt wide.
+                Spacer().frame(width: 72)
                 CompactTrailingView(state: state, isStale: false, mode: .inApp)
             }
-            .padding(.horizontal, 14)
-            .frame(height: 40)
+            .padding(.horizontal, 12)
+            .frame(height: 37)
             .background(Color.black, in: Capsule())
-            .frame(maxWidth: 300)
+            .overlay {
+                Capsule().strokeBorder(Color(hex: state.keyline.hex).opacity(0.7), lineWidth: 1)
+            }
+            .fixedSize()
 
             LockScreenIslandView(state: state, isStale: false, mode: .inApp)
                 .background(Theme.lockBackground, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
