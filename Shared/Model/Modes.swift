@@ -90,7 +90,7 @@ enum CoupleActivity: String, Codable, CaseIterable, Hashable {
 
 /// Particles drawn over the pets.
 enum AtmosphereEffect: String, Codable, CaseIterable, Hashable {
-    case auto, none, sakura, snow, hearts, fireflies, leaves, stars
+    case auto, none, sakura, snow, rain, hearts, fireflies, leaves, stars, confetti
 
     var title: String {
         switch self {
@@ -98,10 +98,12 @@ enum AtmosphereEffect: String, Codable, CaseIterable, Hashable {
         case .none: return "Без"
         case .sakura: return "Сакура"
         case .snow: return "Снег"
+        case .rain: return "Дождик"
         case .hearts: return "Сердечки"
         case .fireflies: return "Светлячки"
         case .leaves: return "Листопад"
         case .stars: return "Звёзды"
+        case .confetti: return "Конфетти"
         }
     }
 
@@ -111,10 +113,12 @@ enum AtmosphereEffect: String, Codable, CaseIterable, Hashable {
         case .none: return "▫️"
         case .sakura: return "🌸"
         case .snow: return "❄️"
+        case .rain: return "🌧️"
         case .hearts: return "💗"
         case .fireflies: return "✨"
         case .leaves: return "🍂"
         case .stars: return "⭐"
+        case .confetti: return "🎉"
         }
     }
 }

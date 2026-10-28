@@ -127,7 +127,20 @@ struct IslandState: Codable, Hashable {
         if showsHearts { return .hearts }
         if effect != .auto { return effect }
         if isSleeping { return .stars }
+        if isAnniversary() { return .confetti }
         return partner == nil ? .none : activity.defaultEffect
+    }
+
+    /// Same day of the month you got together (every month), or a round
+    /// number of days: 100, 200, …, 365, 500, 1000.
+    func isAnniversary(at date: Date = .now, calendar: Calendar = .current) -> Bool {
+        guard partner != nil, let since = togetherSince, let days = daysTogether(at: date, calendar: calendar) else {
+            return false
+        }
+        if days > 1 && calendar.component(.day, from: since) == calendar.component(.day, from: date) {
+            return true
+        }
+        return days % 100 == 0 || days == 365
     }
 }
 

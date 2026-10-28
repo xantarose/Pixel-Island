@@ -37,7 +37,8 @@ enum StageLayout {
 private extension IslandState {
     var daysText: String? {
         guard let days = daysTogether() else { return nil }
-        return "\(days) \(RussianPlural.days(days))"
+        let text = "\(days) \(RussianPlural.days(days))"
+        return isAnniversary() ? "🎉 " + text : text
     }
 
     var statusText: String {

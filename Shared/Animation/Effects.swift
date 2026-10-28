@@ -25,8 +25,15 @@ enum Effects {
             return ["P": Color(hex: 0xFFB3CB), "L": Color(hex: 0xFFE1EC), "D": Color(hex: 0xF58CB0)]
         case .snow:
             return ["W": Color(hex: 0xFFFFFF), "L": Color(hex: 0xCFE2FF)]
+        case .rain:
+            return ["L": Color(hex: 0x8FB8FF), "W": Color(hex: 0xCFE2FF)]
         case .hearts:
             return ["P": Color(hex: 0xFF6F9F), "L": Color(hex: 0xFFB3CB)]
+        case .confetti:
+            return [
+                "P": Color(hex: 0xFF6F9F), "G": Color(hex: 0xFFE27A), "L": Color(hex: 0x8FE3B0),
+                "D": Color(hex: 0x8FB8FF), "W": Color(hex: 0xC9A7FF),
+            ]
         case .fireflies:
             return ["G": Color(hex: 0xFFE27A), "L": Color(hex: 0xFFF6C8)]
         case .leaves:
@@ -65,6 +72,21 @@ enum Effects {
                 particles.append(Particle(
                     x: int(0..<width), y: int(0..<travel), laps: pick([1, 1, 2]), sway: 1,
                     phase: unit(), role: pick(["W", "W", "L"]), shape: [(0, 0)]
+                ))
+            }
+        case .rain:
+            for _ in 0..<max(area / 50, 2) {
+                particles.append(Particle(
+                    x: int(0..<width), y: int(0..<travel), laps: pick([3, 4]), sway: 0,
+                    phase: unit(), role: pick(["L", "L", "W"]), shape: [(0, 0), (0, 1)]
+                ))
+            }
+        case .confetti:
+            for _ in 0..<max(area / 55, 2) {
+                particles.append(Particle(
+                    x: int(0..<width), y: int(0..<travel), laps: pick([1, 2]), sway: pick([1, 2]),
+                    phase: unit(), role: pick(["P", "G", "L", "D", "W"]),
+                    shape: pick([[(0, 0)], [(0, 0), (1, 0)], [(0, 0), (0, 1)]])
                 ))
             }
         case .hearts:
