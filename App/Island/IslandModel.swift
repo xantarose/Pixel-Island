@@ -127,7 +127,7 @@ final class IslandModel {
         let name = state.me.name
         Task { await FocusNotifications.schedule(at: end, petName: name) }
         if !isRunning {
-            Task { await start() }
+            Task { await self.start() }
         }
     }
 
