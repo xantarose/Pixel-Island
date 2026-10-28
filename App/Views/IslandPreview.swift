@@ -9,7 +9,7 @@ struct IslandPreview: View {
         VStack(spacing: 14) {
             // Fake Dynamic Island: black pill, pet on the left, partner/timer on the right.
             HStack(spacing: 0) {
-                CompactLeadingView(state: state, isStale: false, mode: .inApp)
+                CompactLeadingView(state: state, mode: .inApp)
                 Spacer(minLength: 70)
                 CompactTrailingView(state: state, isStale: false, mode: .inApp)
             }

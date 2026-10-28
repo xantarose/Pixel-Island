@@ -40,11 +40,3 @@ struct PixelLayerShape: Shape {
         return path
     }
 }
-
-struct PixelHeart: View {
-    let pixel: CGFloat
-
-    var body: some View {
-        PixelFrameView(frame: Glyphs.heart, palette: Glyphs.heartPalette, pixel: pixel)
-    }
-}

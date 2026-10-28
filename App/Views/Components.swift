@@ -61,9 +61,16 @@ struct PetPortrait: View {
     var body: some View {
         Group {
             if animated {
-                PetSceneView(pet: pet, scene: .standing(), pixel: pixel, mode: .inApp)
+                StageView(
+                    script: Scripts.solo(.sit, width: 16, height: 16),
+                    me: pet,
+                    partner: nil,
+                    effect: .none,
+                    pixel: pixel,
+                    mode: .inApp
+                )
             } else {
-                PixelFrameView(frame: pet.frame(.idle, 0), palette: pet.palette, pixel: pixel)
+                PixelFrameView(frame: pet.frame(.sit, 0), palette: pet.palette, pixel: pixel)
             }
         }
         .padding(6)
@@ -95,6 +102,41 @@ struct NameField: View {
         }
         .onChange(of: focused) { _, isFocused in
             if !isFocused { onCommit() }
+        }
+    }
+}
+
+/// Grid of tappable chips, one selected. Used for activities, poses, effects.
+struct ChoiceGrid<Option: Hashable>: View {
+    let options: [Option]
+    let selection: Option
+    let label: (Option) -> String
+    let onSelect: (Option) -> Void
+
+    private let columns = [GridItem(.adaptive(minimum: 104), spacing: 8)]
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 8) {
+            ForEach(options, id: \.self) { option in
+                let isSelected = option == selection
+                Button {
+                    onSelect(option)
+                } label: {
+                    Text(label(option))
+                        .font(Theme.roundedFont(14))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .foregroundStyle(isSelected ? Theme.background : Theme.cream)
+                        .frame(maxWidth: .infinity, minHeight: 40)
+                        .background(
+                            isSelected ? Theme.peach : Theme.cardBorder.opacity(0.6),
+                            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+                .sensoryFeedback(.selection, trigger: isSelected)
+            }
         }
     }
 }

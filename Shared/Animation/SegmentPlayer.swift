@@ -9,16 +9,19 @@ enum PlaybackMode {
     case inApp
 }
 
-/// Plays `weights.count` segments in a loop at `PetScene.fps` slots per second.
+/// Plays `weights.count` segments in a loop at `SegmentPlayer.fps` slots per second.
 /// Segment `i` stays on screen for `weights[i]` slots.
 struct SegmentPlayer<Content: View>: View {
+    /// Animation steps per second. Pixel art reads best at a low frame rate.
+    static var fps: Double { 6 }
+
     let weights: [Double]
     let size: CGSize
     let mode: PlaybackMode
     @ViewBuilder let content: (Int) -> Content
 
     private var period: TimeInterval {
-        weights.reduce(0, +) / PetScene.fps
+        weights.reduce(0, +) / Self.fps
     }
 
     var body: some View {
@@ -26,7 +29,7 @@ struct SegmentPlayer<Content: View>: View {
         case .liveActivity:
             FrameWheel(weights: weights, period: period, size: size, content: content)
         case .inApp:
-            TimelineView(.animation(minimumInterval: 1 / PetScene.fps)) { context in
+            TimelineView(.animation(minimumInterval: 1 / Self.fps)) { context in
                 content(index(at: context.date))
                     .frame(width: size.width, height: size.height)
             }
@@ -37,7 +40,7 @@ struct SegmentPlayer<Content: View>: View {
     private func index(at date: Date) -> Int {
         let total = weights.reduce(0, +)
         guard total > 0 else { return 0 }
-        let position = (date.timeIntervalSinceReferenceDate * PetScene.fps)
+        let position = (date.timeIntervalSinceReferenceDate * Self.fps)
             .truncatingRemainder(dividingBy: total)
         var accumulated = 0.0
         for (i, weight) in weights.enumerated() {

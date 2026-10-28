@@ -41,6 +41,9 @@ struct IslandState: Codable, Hashable {
     var focus: FocusSession?
     /// Short-lived "petted" reaction, never persisted as true.
     var showsHearts: Bool
+    var pose: SoloPose
+    var activity: CoupleActivity
+    var effect: AtmosphereEffect
 
     static let initial = IslandState(
         me: .defaultMine,
@@ -48,8 +51,49 @@ struct IslandState: Codable, Hashable {
         togetherSince: nil,
         isSleeping: false,
         focus: nil,
-        showsHearts: false
+        showsHearts: false,
+        pose: .auto,
+        activity: .walk,
+        effect: .auto
     )
+
+    init(
+        me: PetProfile,
+        partner: PetProfile?,
+        togetherSince: Date?,
+        isSleeping: Bool,
+        focus: FocusSession?,
+        showsHearts: Bool,
+        pose: SoloPose,
+        activity: CoupleActivity,
+        effect: AtmosphereEffect
+    ) {
+        self.me = me
+        self.partner = partner
+        self.togetherSince = togetherSince
+        self.isSleeping = isSleeping
+        self.focus = focus
+        self.showsHearts = showsHearts
+        self.pose = pose
+        self.activity = activity
+        self.effect = effect
+    }
+
+    /// Tolerant decoding: settings saved by an older version (or an unknown
+    /// value from a newer one) fall back to defaults instead of wiping
+    /// everything the user set up.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        me = try c.decode(PetProfile.self, forKey: .me)
+        partner = try? c.decodeIfPresent(PetProfile.self, forKey: .partner)
+        togetherSince = try? c.decodeIfPresent(Date.self, forKey: .togetherSince)
+        isSleeping = (try? c.decodeIfPresent(Bool.self, forKey: .isSleeping)) ?? false
+        focus = try? c.decodeIfPresent(FocusSession.self, forKey: .focus)
+        showsHearts = (try? c.decodeIfPresent(Bool.self, forKey: .showsHearts)) ?? false
+        pose = (try? c.decodeIfPresent(SoloPose.self, forKey: .pose)) ?? .auto
+        activity = (try? c.decodeIfPresent(CoupleActivity.self, forKey: .activity)) ?? .walk
+        effect = (try? c.decodeIfPresent(AtmosphereEffect.self, forKey: .effect)) ?? .auto
+    }
 
     func sanitized() -> IslandState {
         var copy = self
@@ -71,6 +115,19 @@ struct IslandState: Codable, Hashable {
         let today = calendar.startOfDay(for: date)
         let days = calendar.dateComponents([.day], from: start, to: today).day ?? 0
         return max(days, 0) + 1
+    }
+
+    func isFocusing(isStale: Bool = false, now: Date = .now) -> Bool {
+        guard let focus else { return false }
+        return !isStale && !focus.isFinished(at: now)
+    }
+
+    /// The effect actually shown once "Авто" is resolved.
+    var resolvedEffect: AtmosphereEffect {
+        if showsHearts { return .hearts }
+        if effect != .auto { return effect }
+        if isSleeping { return .stars }
+        return partner == nil ? .none : activity.defaultEffect
     }
 }
 

@@ -38,6 +38,29 @@ struct ToggleSleepIntent: LiveActivityIntent {
     }
 }
 
+/// Next couple activity (or next pose when there is no partner).
+struct NextActivityIntent: LiveActivityIntent {
+    static let title: LocalizedStringResource = "Следующая активность"
+    static let description = IntentDescription("Питомцы на островке переключаются на другое занятие.")
+
+    func perform() async throws -> some IntentResult {
+        #if !WIDGET_EXTENSION
+        var state = IslandStorage.load()
+        if state.partner != nil {
+            state.activity = state.activity.next
+        } else {
+            let all = SoloPose.allCases
+            let index = all.firstIndex(of: state.pose) ?? 0
+            state.pose = all[(index + 1) % all.count]
+        }
+        state.isSleeping = false
+        IslandStorage.save(state)
+        await IslandController.update(state)
+        #endif
+        return .result()
+    }
+}
+
 /// Ends the focus timer and lets the pet wake up.
 struct StopFocusIntent: LiveActivityIntent {
     static let title: LocalizedStringResource = "Закончить фокус"

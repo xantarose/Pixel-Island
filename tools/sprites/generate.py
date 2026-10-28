@@ -1,25 +1,33 @@
 #!/usr/bin/env python3
-"""Pixel Island sprite generator.
+"""Pixel Island sprite generator (v2).
 
-Draws every pet on a 16x16 grid, colours it per breed, adds the outline and
-writes two things:
+Draws every pet on a 16x16 grid in several poses, colours it per breed, adds
+the outline and writes:
   * Shared/Sprites/SpriteCatalog.generated.swift  - data the app reads
   * tools/sprites/preview.png                     - a sheet to eyeball the art
 
 Run from the repo root:  python3 tools/sprites/generate.py
-Needs Pillow only for the preview (pip install pillow).
+Pillow is only needed for the preview (pip install pillow).
 
 How a sprite is described
 -------------------------
-Templates are drawn with *region* letters, not colours:
-  a ear fur   p inner ear   h head fur   e eye    k closed eye   n nose
-  m muzzle    b body fur    l belly      t tail   f legs         w tail tip
-  u ear tuft  z sleep "Z"   x extra (species specific)
-Each pet has a `paint(region, x, y)` function that turns a region into a
-palette *role*. Roles are what the Swift side knows about:
-  o outline  B base  D dark  L light  P pink  E eye  G accent  W white  S star
-The outline is added automatically around the silhouette, so templates only
-contain fills.
+Poses are drawn with *region* letters, not colours. Regions say what a pixel
+is; some regions are "hints" that patterns may recolour:
+
+  a ear fur      p inner ear     h head fur      y head patch (hint)
+  r forehead stripe (hint)       M mask around the nose (hint)
+  e left eye     j right eye     k closed eye    n nose      m muzzle
+  b body fur     s body stripe (hint)            x back patch (hint)
+  l chest/belly  t tail          q tail ring (hint)          w tail tip
+  f leg          g paw           u ear tuft
+
+Each breed has a palette and a list of patterns. A pattern turns regions into
+palette *roles*, the only thing the Swift side knows about:
+
+  o outline  B base  D dark  L light  P pink  E eye  F 2nd eye  K closed eye
+  G accent   W white S star
+
+The outline is added automatically around the silhouette.
 """
 from __future__ import annotations
 
@@ -31,1256 +39,787 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 SWIFT_OUT = os.path.join(ROOT, "Shared", "Sprites", "SpriteCatalog.generated.swift")
 PREVIEW_OUT = os.path.join(ROOT, "tools", "sprites", "preview.png")
 
-ROLES = "oBDLPEGWS"
-NO_OUTLINE = {"z"}  # regions drawn without an outline ring
+ROLES = "oBDLPEFKGWS"
+POSES = ["walk", "sit", "loaf", "sleep", "curl", "groom", "stretch", "play"]
+TAIL = set("tqw")
+HEADISH = set("hyrM")
+EMPTY = "." * SIZE
 
 
 # ---------------------------------------------------------------- helpers
 
-def g(rows: list[str]) -> list[list[str]]:
-    """Validate and turn a list of 16 strings into a mutable grid."""
-    assert len(rows) == SIZE, f"need {SIZE} rows, got {len(rows)}"
+def grid(rows: list[str]) -> list[list[str]]:
+    """Bottom-align `rows` in a 16x16 grid and validate the width."""
+    rows = list(rows)
+    assert len(rows) <= SIZE, f"too many rows: {len(rows)}"
     for r in rows:
         assert len(r) == SIZE, f"row {r!r} is {len(r)} wide"
+    rows = [EMPTY] * (SIZE - len(rows)) + rows
     return [list(r) for r in rows]
 
 
-def copy(grid):
-    return [row[:] for row in grid]
+def copy(g):
+    return [row[:] for row in g]
 
 
-def put(grid, y, x, region):
+def put(g, y, x, region):
     if 0 <= y < SIZE and 0 <= x < SIZE:
-        grid[y][x] = region
+        g[y][x] = region
 
 
-def replace_region(grid, src, dst):
-    for row in grid:
-        for i, c in enumerate(row):
-            if c == src:
-                row[i] = dst
+def cells(g, letters):
+    return [(y, x) for y in range(SIZE) for x in range(SIZE) if g[y][x] in letters]
 
 
-def add_outline(grid):
+def edit(g, changes):
+    """Return a copy with (y, x, region) changes applied."""
+    out = copy(g)
+    for y, x, region in changes:
+        put(out, y, x, region)
+    return out
+
+
+def close_eyes(g):
+    """Open eyes (2 px tall dots) become closed eyes: a 2 px line per eye."""
+    out = copy(g)
+    for letter, outward in (("e", -1), ("j", 1)):
+        pts = cells(g, letter)
+        for x in sorted({x for _, x in pts}):
+            column = sorted(y for y, xx in pts if xx == x)
+            for y in column[:-1]:
+                out[y][x] = "h"
+            bottom = column[-1]
+            out[bottom][x] = "k"
+            if g[bottom][x + outward] in HEADISH:
+                out[bottom][x + outward] = "k"
+    return out
+
+
+def add_outline(g):
     """Every empty pixel touching a filled one (4-neighbourhood) becomes 'o'."""
-    out = copy(grid)
+    out = copy(g)
     for y in range(SIZE):
         for x in range(SIZE):
-            if grid[y][x] != ".":
+            if g[y][x] != ".":
                 continue
             for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
                 nx, ny = x + dx, y + dy
-                if 0 <= nx < SIZE and 0 <= ny < SIZE:
-                    c = grid[ny][nx]
-                    if c != "." and c not in NO_OUTLINE and c != "o":
-                        out[y][x] = "o"
-                        break
+                if 0 <= nx < SIZE and 0 <= ny < SIZE and g[ny][nx] not in ".o":
+                    out[y][x] = "o"
+                    break
     return out
 
 
 # ------------------------------------------------------------ cat template
-# Head occupies columns 9..14, ears start on `top` row. Walk/idle top = 4,
-# sleep top = 7. Everything faces right; the app mirrors for walking left.
-
-HEAD = [
-    ".........a....a.",
-    ".........pa..ap.",
-    ".........hhhhhh.",
-    ".........hehheh.",
-    ".........hhnnhh.",
-]
+# Facing right. Head is 6 px wide, ears on top, eyes 2 px tall.
 
 WALK_BODY = [
-    "....bbbbbhhmmhh.",  # 9
-    "...bbbbbbbbbbbb.",  # 10
-    "...bbbbbbbbbbb..",  # 11
-    "...bbllllllbbb..",  # 12
+    ".........a....a.",  # 4
+    ".........pa..ap.",  # 5
+    ".........yyrrhh.",  # 6
+    ".........yeMMjh.",  # 7
+    ".........hennjh.",  # 8
+    "....xxsbshMmmMh.",  # 9
+    "...xxxsbsbsbbll.",  # 10
+    "...xxxsbsbsbbl..",  # 11
+    "...bbllllllbbl..",  # 12
 ]
-
-LEGS = [
-    ["...f..f...f..f..", "..f....f.f....f."],
-    ["...f..f...f..f..", "...f..f...f..f.."],
-    ["....f.f....f.f..", "....f.f....f.f.."],
-    ["...f..f...f..f..", "...f..f...f..f.."],
+WALK_LEGS = [
+    ["...f..f...f..f..", "..g....g.g....g."],
+    ["...f..f...f..f..", "...g..g...g..g.."],
+    ["....f.f....f.f..", "....g.g....g.g.."],
+    ["...f..f...f..f..", "...g..g...g..g.."],
 ]
-
-# (y, x) pixels of the tail for the two sway positions.
-TAIL_A = [(6, 2), (7, 1), (8, 1), (9, 2), (10, 2)]
-TAIL_B = [(5, 1), (6, 1), (7, 1), (8, 1), (9, 2), (10, 2)]
-
-SLEEP_BODY = [
-    "...bbbbbbhhnnhh.",  # 11 (head row with nose drawn over)
-    "..bbbbbbbhhmmhh.",  # 12
-    "..bbbbbbbbbbbbb.",  # 13
-    ".ttttttttttttt..",  # 14 tail wrapped in front
-]
-
-Z_SMALL = [(5, 4), (5, 5), (5, 6), (6, 5), (7, 4), (7, 5), (7, 6)]
-Z_BIG = [(2, 5), (2, 6), (2, 7), (3, 7), (4, 6), (5, 5), (6, 5), (6, 6), (6, 7)]
+TAIL_CURLED = [(6, 2, "w"), (7, 1, "q"), (8, 1, "t"), (9, 2, "q"), (10, 2, "t")]
+TAIL_UP = [(5, 1, "w"), (6, 1, "t"), (7, 1, "q"), (8, 1, "t"), (9, 2, "q"), (10, 2, "t")]
 
 
-def blank():
-    return [["."] * SIZE for _ in range(SIZE)]
+def walk_frame(i):
+    g = grid(WALK_BODY + WALK_LEGS[i] + [EMPTY])
+    for y, x, r in (TAIL_CURLED if i < 2 else TAIL_UP):
+        put(g, y, x, r)
+    return g
 
 
-def place_rows(grid, top, rows):
-    for i, r in enumerate(rows):
-        for x, c in enumerate(r):
-            if c != ".":
-                grid[top + i][x] = c
+SIT = grid([
+    "........a....a..",
+    "........pa..ap..",
+    "........yyrrhh..",
+    "........yeMMjh..",
+    "........hennjh..",
+    "......xshMmmMh..",
+    ".....xxsbsblll..",
+    "....xxxsbsblll..",
+    "....xxsbsbbff...",
+    "...xxsbsbsbff...",
+    "...xbbbbbbbff...",
+    ".wqtqtqtbbbgg...",
+    EMPTY,
+])
+
+LOAF = grid([
+    ".........a....a.",
+    ".........pa..ap.",
+    ".........yyrrhh.",
+    ".........yeMMjh.",
+    ".........hennjh.",
+    "...xxsbsbhMmmMh.",
+    ".txxxsbsbsbbbll.",
+    "wqxxsbsbsbbblll.",
+    "..bbbbbbbbbbgggg",
+    EMPTY,
+])
+
+SLEEP = grid([
+    ".........a....a.",
+    ".........pa..ap.",
+    ".........yyrrhh.",
+    "...xxsbs.yhMMhh.",
+    ".txxxsbsbkknnkk.",
+    "wqxxsbsbshMmmMh.",
+    "..bbbbbbbbbbgggg",
+    EMPTY,
+])
+
+CURL = grid([
+    ".........a....a.",
+    "....xsb..pa..ap.",
+    "..xxxsbsbyyrrhh.",
+    ".xxxsbsbsyhMMhh.",
+    ".xxxsbsbskknnkk.",
+    ".xxsbsbsbhMmmMh.",
+    "..tqtqtqtqtqtqw.",
+    EMPTY,
+])
+
+GROOM = grid([
+    "........a....a..",
+    "........pa..ap..",
+    "........yyrrhh..",
+    "........yhMMhh.g",
+    "........kknnkkff",
+    "......xshMmmMhf.",
+    ".....xxsbsbllf..",
+    "....xxxsbslll...",
+    "....xxsbsbbf....",
+    "...xxsbsbsbf....",
+    ".wqtqtqtbbbg....",
+    EMPTY,
+])
+
+STRETCH = grid([
+    ".w..............",
+    ".t..............",
+    ".q..............",
+    "..xxs...........",
+    "..xxsbs...a....a",
+    "..xxsbsbs.pa..ap",
+    "..ffbsbsbsyyrrhh",
+    "..ff..bsbsyeMMjh",
+    "..ff....bshennjh",
+    "..ff......hMmmMh",
+    "..gg.......ggggg",
+    EMPTY,
+])
+
+PLAY = grid([
+    "........a....a..",
+    "........pa..ap..",
+    "........yyrrhh..",
+    "........yeMMjh..",
+    "........hennjh..",
+    "..xxsbs.hMmmMh..",
+    ".txxsbsbsbbll...",
+    "wqxxsbsbsbblll..",
+    "..bbbbbbbbbbgggg",
+    EMPTY,
+])
+
+PLAY_SWIPE = grid([
+    "........a....a..",
+    "........pa..ap..",
+    "........yyrrhh..",
+    "........yeMMjh.g",
+    "........hennjhff",
+    "..xxsbs.hMmmMhf.",
+    ".txxsbsbsbbllf..",
+    "wqxxsbsbsbblll..",
+    "..bbbbbbbbbgg...",
+    EMPTY,
+])
 
 
-def cat_walk(frame: int):
-    grid = blank()
-    place_rows(grid, 4, HEAD)
-    place_rows(grid, 9, WALK_BODY)
-    place_rows(grid, 13, LEGS[frame])
-    for y, x in (TAIL_A if frame < 2 else TAIL_B):
-        put(grid, y, x, "t")
-    return grid
+def cat_template():
+    return {
+        "walk": [walk_frame(i) for i in range(4)],
+        "sit": [SIT, close_eyes(SIT), edit(SIT, [(14, 1, "."), (13, 1, "w"), (14, 2, "t")])],
+        "loaf": [LOAF, edit(LOAF, [(13, 0, "."), (12, 0, "w"), (13, 1, "t")]), close_eyes(LOAF)],
+        "sleep": [SLEEP, edit(SLEEP, [(10, 4, "x"), (10, 5, "s"), (10, 6, "b")])],
+        "curl": [CURL, edit(CURL, [(9, 3, "x"), (9, 7, "s")])],
+        "groom": [GROOM, edit(GROOM, [(7, 15, "."), (8, 15, "g"), (8, 14, "f")])],
+        "stretch": [STRETCH, edit(STRETCH, [(4, 1, "."), (4, 2, "w")])],
+        "play": [PLAY, PLAY_SWIPE],
+    }
 
 
-def cat_idle(frame: int):
-    grid = cat_walk(1)
-    if frame == 1:
-        replace_region(grid, "e", "k")
-        for y, x in TAIL_A:
-            put(grid, y, x, ".")
-        for y, x in TAIL_B:
-            put(grid, y, x, "t")
-    return grid
+# ---------------------------------------------------------- body variants
+
+def ear_tips(g):
+    return [(y, x) for y, x in cells(g, "a") if y == 0 or g[y - 1][x] == "."]
 
 
-def cat_sleep(frame: int):
-    grid = blank()
-    head = HEAD[:]
-    head[3] = ".........hkhhkh."
-    place_rows(grid, 7, head[:4])
-    place_rows(grid, 11, SLEEP_BODY)
-    if frame == 1:  # breathing: back rises a pixel
-        for x in range(4, 8):
-            put(grid, 10, x, "b")
-    for y, x in (Z_SMALL if frame == 0 else Z_BIG):
-        put(grid, y, x, "z")
-    return grid
+def ears_folded(g):
+    for y, x in ear_tips(g):
+        g[y][x] = "."
+    for y, x in cells(g, "p"):
+        g[y][x] = "a"
 
 
-# ---------------------------------------------------------- variant tweaks
-
-def ears_folded(grid, top):
-    for x in range(SIZE):
-        if grid[top][x] in "ap":
-            grid[top][x] = "."
-    for x in range(SIZE):
-        if grid[top + 1][x] in "ap":
-            grid[top + 1][x] = "."
-    for x in (9, 10, 13, 14):
-        put(grid, top + 1, x, "a")
+def ears_small(g):
+    for y, x in ear_tips(g):
+        g[y][x] = "."
 
 
-def ears_tufted(grid, top):
-    put(grid, top - 1, 9, "u")
-    put(grid, top - 1, 14, "u")
+def ears_tufted(g):
+    for y, x in ear_tips(g):
+        put(g, y - 1, x, "u")
 
 
-def ears_big(grid, top):
-    put(grid, top - 1, 9, "a")
-    put(grid, top - 1, 14, "a")
-    put(grid, top, 10, "p")
-    put(grid, top, 13, "p")
-    put(grid, top + 1, 10, "p")
-    put(grid, top + 1, 13, "p")
+def ears_big(g):
+    for y, x in ear_tips(g):
+        put(g, y - 1, x, "a")
 
 
-def ears_tall(grid, top):
-    """Fox: one extra pixel of ear above the normal tip."""
-    put(grid, top - 1, 9, "a")
-    put(grid, top - 1, 14, "a")
-    put(grid, top, 10, "a")
-    put(grid, top, 13, "a")
+def tail_fluffy(g):
+    for y, x in cells(g, TAIL):
+        horizontal = any(0 <= x + d < SIZE and g[y][x + d] in TAIL for d in (-1, 1))
+        targets = [(y - 1, x)] if horizontal else [(y, x - 1), (y, x + 1)]
+        for ty, tx in targets:
+            if 0 <= ty < SIZE and 0 <= tx < SIZE and g[ty][tx] == ".":
+                g[ty][tx] = g[y][x]
 
 
-def tail_fluffy(grid):
-    pts = [(y, x) for y in range(SIZE) for x in range(SIZE) if grid[y][x] == "t"]
-    for y, x in pts:
-        if x + 1 < SIZE and grid[y][x + 1] == ".":
-            grid[y][x + 1] = "t"
-        if x - 1 >= 0 and grid[y][x - 1] == ".":
-            grid[y][x - 1] = "t"
+def tail_bob(g):
+    """Keep only the two tail pixels closest to the body."""
+    tail = set(cells(g, TAIL))
+    body = {(y, x) for y in range(SIZE) for x in range(SIZE)
+            if g[y][x] not in "." and (y, x) not in tail}
+    dist = {}
+    frontier = [p for p in tail
+                if any((p[0] + dy, p[1] + dx) in body for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)))]
+    for p in frontier:
+        dist[p] = 1
+    while frontier:
+        nxt = []
+        for y, x in frontier:
+            for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                q = (y + dy, x + dx)
+                if q in tail and q not in dist:
+                    dist[q] = dist[(y, x)] + 1
+                    nxt.append(q)
+        frontier = nxt
+    for p in tail:
+        if dist.get(p, 99) > 2:
+            g[p[0]][p[1]] = "."
 
 
-def tail_white_tip(grid):
-    """Topmost tail pixels become 'w' (fox tip)."""
-    pts = sorted((y, x) for y in range(SIZE) for x in range(SIZE) if grid[y][x] == "t")
-    if not pts:
+def tail_curl_back(g):
+    """Shiba: the tail curls over the back instead of hanging."""
+    for y, x in cells(g, TAIL):
+        g[y][x] = "."
+    tops = cells(g, "xsb")
+    if not tops:
         return
-    top = pts[0][0]
-    for y, x in pts:
-        if y <= top + 1:
-            grid[y][x] = "w"
+    top = min(y for y, _ in tops)
+    left = min(x for y, x in tops if y == top)
+    for dy, dx in ((-1, 0), (-1, 1), (-2, 0), (-2, 1), (-2, 2), (-1, 3)):
+        if 0 <= top + dy and g[top + dy][left + dx] == ".":
+            g[top + dy][left + dx] = "t"
 
 
-def tail_curl(grid):
-    """Shiba: replace the upright tail with a curl sitting on the back."""
-    replace_region(grid, "t", ".")
-    for y, x in ((8, 3), (8, 4), (7, 3), (7, 4), (7, 5), (8, 6)):
-        if grid[y][x] == ".":
-            grid[y][x] = "t"
+def short_legs(frames):
+    """Munchkin: drop one leg row from walking frames."""
+    for i, g in enumerate(frames["walk"]):
+        g = copy(g)
+        del g[13]
+        g.insert(0, ["."] * SIZE)
+        frames["walk"][i] = g
 
 
-def apply_cat_variant(frames, ears=None, tail=None):
-    """Apply ear/tail tweaks to walk/idle (head top 4) and sleep (head top 7)."""
+def with_variants(frames, mods=(), legs_short=False):
     out = {}
-    for kind, grids in frames.items():
-        top = 7 if kind == "sleep" else 4
-        new = []
-        for grid in grids:
-            grid = copy(grid)
-            if ears:
-                ears(grid, top)
-            if tail and kind != "sleep":
-                for t in tail:
-                    t(grid)
-            elif tail and kind == "sleep" and tail_white_tip in tail:
-                # fox sleeps with its white tip in front
-                put(grid, 14, 1, "w")
-                put(grid, 14, 2, "w")
-            new.append(grid)
-        out[kind] = new
+    for pose, gs in frames.items():
+        out[pose] = []
+        for g in gs:
+            g = copy(g)
+            for mod in mods:
+                mod(g)
+            out[pose].append(g)
+    if legs_short:
+        short_legs(out)
     return out
 
 
-def cat_frames(ears=None, tail=None):
-    base = {
-        "walk": [cat_walk(i) for i in range(4)],
-        "idle": [cat_idle(i) for i in range(2)],
-        "sleep": [cat_sleep(i) for i in range(2)],
-    }
-    return apply_cat_variant(base, ears, tail)
-
-
-# ------------------------------------------------------- colour mappings
+# ------------------------------------------------------------- patterns
+# A pattern is f(region, x, y) -> role or None. Patterns are tried in order,
+# the first non-None answer wins, DEFAULT handles the rest.
 
 DEFAULT = {
-    "a": "B", "p": "P", "h": "B", "e": "E", "k": "o", "n": "P", "m": "L",
-    "b": "B", "l": "L", "t": "B", "f": "B", "w": "W", "u": "D", "z": "W",
-    "x": "G",
+    "a": "B", "p": "P", "h": "B", "y": "B", "r": "B", "M": "B", "e": "E", "j": "F",
+    "k": "K", "n": "P", "m": "L", "b": "B", "s": "B", "x": "B", "l": "L", "t": "B",
+    "q": "B", "w": "B", "f": "B", "g": "B", "u": "D", "z": "W",
 }
 
 
-def painter(rules=None):
-    """rules(region, x, y) -> role or None (None = use DEFAULT)."""
+def tabby(region, x, y):
+    return "D" if region in "srq" else None
+
+
+def spotted(region, x, y):
+    if region == "s" and (x + y) % 2 == 0:
+        return "D"
+    return "D" if region in "rq" else None
+
+
+def ticked(region, x, y):
+    return "D" if region in "rw" else None
+
+
+def points(region, x, y):
+    return "D" if region in "aftqwMmnp" or (region == "g") else None
+
+
+def white_socks(region, x, y):
+    return "L" if region == "g" else None
+
+
+def calico(region, x, y):
+    if region == "x":
+        return "G"
+    if region in "yq":
+        return "D"
+    if region == "t":
+        return "G"
+    return None
+
+
+def tortie(region, x, y):
+    if region in "xyq":
+        return "G"
+    if region == "s" and (x * 7 + y * 3) % 5 < 2:
+        return "G"
+    if region in "bh" and (x * 5 + y * 11) % 7 == 0:
+        return "G"
+    return None
+
+
+def bicolor(region, x, y):
+    return "L" if region in "Mmlfg" else None
+
+
+def tuxedo(region, x, y):
+    return "L" if region in "mlg" else None
+
+
+def van(region, x, y):
+    return "G" if region in "ayrtqw" else None
+
+
+def harlequin(region, x, y):
+    return "D" if region in "xyqt" else None
+
+
+def wrinkles(region, x, y):
+    return "D" if region == "r" else None
+
+
+def seeds(region, x, y):
+    return "G" if region in "sx" and (x + 2 * y) % 4 == 0 else None
+
+
+def stars(region, x, y):
+    return "S" if region in "sxbh" and (x * 3 + y * 5) % 11 == 0 else None
+
+
+def fox_marks(region, x, y):
+    if region in "fg":
+        return "D"
+    if region in "lmMw":
+        return "W"
+    return None
+
+
+def shiba_marks(region, x, y):
+    return "L" if region in "lmMg" else None
+
+
+def painter(*patterns):
     def paint(region, x, y):
-        if rules:
-            r = rules(region, x, y)
-            if r:
-                return r
+        for pattern in patterns:
+            role = pattern(region, x, y)
+            if role:
+                return role
         return DEFAULT[region]
     return paint
 
 
-def stripes(region, x, y):
-    if region in "bt" and region != "l":
-        if region == "b" and y in (10, 11) and x in (5, 8, 11):
-            return "D"
-        if region == "t" and y % 2 == 0:
-            return "D"
-    if region == "h" and y in (6, 9) and x in (11, 12):  # forehead "M"
-        return "D"
-    return None
+def pal(o, B, D, L, P, E, F=None, K=None, G=None, W="#FFFFFF", S="#FFF3A0"):
+    return {"o": o, "B": B, "D": D, "L": L, "P": P, "E": E, "F": F or E, "K": K or o,
+            "G": G or D, "W": W, "S": S}
 
 
-def siamese(region, x, y):
-    if region in "aftun":
-        return "D"
-    if region == "h" and 10 <= x <= 13 and y in (8, 12):  # mask around the nose
-        return "D"
-    if region == "h" and x in (11, 12) and y in (7, 10):  # between the eyes
-        return "D"
-    if region == "m":
-        return "D"
-    return None
+# ------------------------------------------------------ hand-drawn friends
+# Simple critters with walk (2 frames), sit/idle (2) and sleep (2). Missing
+# poses fall back on the Swift side (loaf/groom/play -> sit, curl -> sleep).
+
+def friend(walk, sit, sleep):
+    def prep(frames):
+        return [grid(f) for f in frames]
+    w = prep(walk)
+    return {"walk": [w[0], w[1], w[0], w[1]], "sit": prep(sit), "sleep": [widen_closed(g) for g in prep(sleep)]}
 
 
-def calico(region, x, y):
-    if region == "b" and 4 <= x <= 6 and 9 <= y <= 11:
-        return "G"
-    if region == "b" and 9 <= x <= 11 and 10 <= y <= 11:
-        return "D"
-    if region == "b" and 2 <= x <= 5 and y == 13:  # sleep loaf patch
-        return "G"
-    if region in "ah" and x <= 10 and y in (4, 5, 6, 7, 8, 9, 10):
-        return "G"
-    if region in "ah" and x >= 14 and y in (4, 5, 6, 7, 8, 9, 10):
-        return "D"
-    if region == "t":
-        return "D" if y % 2 else "G"
-    return None
-
-
-def tuxedo(region, x, y):
-    if region in "lm":
-        return "L"
-    if region == "f" and y == 14:
-        return "L"
-    if region == "b" and x >= 12 and y >= 10:
-        return "L"
-    return None
-
-
-def bengal(region, x, y):
-    spots = {(10, 4), (10, 7), (11, 6), (10, 10), (11, 9), (11, 4), (12, 12),
-             (13, 4), (13, 7), (13, 10), (12, 5)}
-    if region == "b" and (y, x) in spots:
-        return "D"
-    if region == "t" and y % 2:
-        return "D"
-    return None
-
-
-def sphynx(region, x, y):
-    if region == "h" and y in (6, 9) and x in (11, 12):  # forehead wrinkles
-        return "D"
-    return None
-
-
-def strawberry(region, x, y):
-    heart = {(10, 5), (10, 7), (11, 5), (11, 6), (11, 7), (12, 6)}
-    if region == "b" and (y, x) in heart:
-        return "D"
-    return None
-
-
-def cosmic(region, x, y):
-    stars = {(10, 5), (11, 9), (6, 11), (13, 7), (13, 4), (12, 11)}
-    if region in "bht" and (y, x) in stars:
-        return "S"
-    return None
-
-
-def fox(region, x, y):
-    if region == "f":
-        return "D"
-    if region == "a" and y <= 4:
-        return "D"
-    if region == "a" and y == 7:  # sleep frame ear tips
-        return "D"
-    if region == "b" and x >= 12 and y >= 10:
-        return "L"
-    return None
-
-
-def shiba(region, x, y):
-    if region == "h" and x in (9, 14) and y in (8, 9, 11, 12):
-        return "L"
-    if region == "b" and x >= 12 and y >= 10:
-        return "L"
-    if region == "t":
-        return "L" if (y, x) == (8, 6) else None
-    return None
-
-
-# ------------------------------------------------- non-cat species (fills)
-# Frames below are drawn directly. Same region letters as above.
-
-BUNNY = {
-    "walk": [
-        ["................",
-         "..........a..a..",
-         "..........a..a..",
-         "..........p..p..",
-         "..........p..p..",
-         ".........hhhhhh.",
-         ".........hehheh.",
-         ".........hhnnhh.",
-         "...bbbbbbhhmmhh.",
-         "..bbbbbbbbbbbb..",
-         ".tbbbbbbbbbbbb..",
-         "..bbbbblllllbb..",
-         "..bbbbbbbbbbb...",
-         "...ff.....ff....",
-         "................",
-         "................"],
-        ["..........a..a..",
-         "..........a..a..",
-         "..........p..p..",
-         "..........p..p..",
-         ".........hhhhhh.",
-         ".........hehheh.",
-         ".........hhnnhh.",
-         "...bbbbbbhhmmhh.",
-         "..bbbbbbbbbbbb..",
-         ".tbbbbbbbbbbbb..",
-         "..bbbbblllllbb..",
-         "..bbbbbbbbbbb...",
-         ".ff........ff...",
-         "................",
-         "................",
-         "................"],
-    ],
-    "idle": [
-        ["................",
-         "................",
-         "..........a..a..",
-         "..........a..a..",
-         "..........p..p..",
-         ".........hhhhhh.",
-         ".........hehheh.",
-         ".........hhnnhh.",
-         "...bbbbbbhhmmhh.",
-         "..bbbbbbbbbbbb..",
-         ".tbbbbbbbbbbbb..",
-         "..bbbbblllllbb..",
-         "..bbbbbbbbbbb...",
-         "...ff.....ff....",
-         "................",
-         "................"],
-        ["................",
-         "................",
-         "..........a.....",
-         "..........a..aa.",
-         "..........p..pp.",
-         ".........hhhhhh.",
-         ".........hkhhkh.",
-         ".........hhnnhh.",
-         "...bbbbbbhhmmhh.",
-         "..bbbbbbbbbbbb..",
-         ".tbbbbbbbbbbbb..",
-         "..bbbbblllllbb..",
-         "..bbbbbbbbbbb...",
-         "...ff.....ff....",
-         "................",
-         "................"],
-    ],
-    "sleep": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "....z...........",
-         "....zz..........",
-         "................",
-         "........aaaaa...",
-         ".........ppppa..",
-         ".........hhhhhh.",
-         ".........hkhhkh.",
-         "...bbbbbbhhnnhh.",
-         "..bbbbbbbhhmmhh.",
-         ".tbbbbbbbbbbbbb.",
-         "..bbbbbbbbbbbb..",
-         "................"],
-        ["................",
-         "................",
-         ".....zzz........",
-         ".......z........",
-         "......z.........",
-         ".....zzz........",
-         "................",
-         "........aaaaa...",
-         ".........ppppa..",
-         ".........hhhhhh.",
-         ".........hkhhkh.",
-         "...bbbbbbhhnnhh.",
-         "..bbbbbbbhhmmhh.",
-         ".tbbbbbbbbbbbbb.",
-         ".bbbbbbbbbbbbbb.",
-         "................"],
-    ],
-}
-
-FROG = {
-    "walk": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "..hh......hh....",
-         ".heeh....heeh...",
-         ".hhhhhhhhhhhh...",
-         ".hhhhhhhhhhhh...",
-         ".hmmmmmmmmmmh...",
-         ".bbllllllllbb...",
-         ".bbbbbbbbbbbb...",
-         "ff..........ff..",
-         "................",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "...hh......hh...",
-         "..heeh....heeh..",
-         "..hhhhhhhhhhhh..",
-         "..hhhhhhhhhhhh..",
-         "..hmmmmmmmmmmh..",
-         "..bbllllllllbb..",
-         "..bbbbbbbbbbbb..",
-         ".ff..........ff.",
-         "ff............ff",
-         "................",
-         "................",
-         "................",
-         "................"],
-    ],
-    "idle": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "..hh......hh....",
-         ".heeh....heeh...",
-         ".hhhhhhhhhhhh...",
-         ".hhhhhhhhhhhh...",
-         ".hmmmmmmmmmmh...",
-         ".bbllllllllbb...",
-         ".bbbbbbbbbbbb...",
-         "ff..........ff..",
-         "................",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "..hh......hh....",
-         ".hkkh....hkkh...",
-         ".hhhhhhhhhhhh...",
-         ".hhhhhhhhhhhh...",
-         ".hmmmmmmmmmmh...",
-         ".bbllllllllbb...",
-         ".bbbbbbbbbbbb...",
-         "ff..........ff..",
-         "................",
-         "................"],
-    ],
-    "sleep": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "............z...",
-         "............zz..",
-         "................",
-         "................",
-         "..hh......hh....",
-         ".hkkh....hkkh...",
-         ".hhhhhhhhhhhh...",
-         ".hmmmmmmmmmmh...",
-         ".bbllllllllbb...",
-         "fbbbbbbbbbbbbf..",
-         "................",
-         "................"],
-        ["................",
-         "................",
-         "............zzz.",
-         "..............z.",
-         ".............z..",
-         "............zzz.",
-         "................",
-         "................",
-         "..hh......hh....",
-         ".hkkh....hkkh...",
-         ".hhhhhhhhhhhh...",
-         ".hhhhhhhhhhhh...",
-         ".bbllllllllbb...",
-         "fbbbbbbbbbbbbf..",
-         "................",
-         "................"],
-    ],
-}
-
-GHOST = {
-    "walk": [
-        ["................",
-         "................",
-         "................",
-         ".....bbbbbb.....",
-         "....bbbbbbbb....",
-         "...bbbbbbbbbb...",
-         "...bbbebbebbb...",
-         "...bbbebbebbb...",
-         "...bbpbbbbpbb...",
-         "...bbbbmmbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...b.bb.bb.bb...",
-         "................",
-         "................"],
-        ["................",
-         "................",
-         ".....bbbbbb.....",
-         "....bbbbbbbb....",
-         "...bbbbbbbbbb...",
-         "...bbbebbebbb...",
-         "...bbbebbebbb...",
-         "...bbpbbbbpbb...",
-         "...bbbbmmbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bb.bb.bb.b...",
-         "................",
-         "................",
-         "................"],
-    ],
-    "idle": [
-        ["................",
-         "................",
-         "................",
-         ".....bbbbbb.....",
-         "....bbbbbbbb....",
-         "...bbbbbbbbbb...",
-         "...bbbebbebbb...",
-         "...bbbebbebbb...",
-         "...bbpbbbbpbb...",
-         "...bbbbmmbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...b.bb.bb.bb...",
-         "................",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         ".....bbbbbb.....",
-         "....bbbbbbbb....",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbkbbkbbb...",
-         "...bbpbbbbpbb...",
-         "...bbbbmmbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bb.bb.bb.b...",
-         "................",
-         "................"],
-    ],
-    "sleep": [
-        ["................",
-         "................",
-         "..........z.....",
-         "..........zz....",
-         "................",
-         "................",
-         ".....bbbbbb.....",
-         "....bbbbbbbb....",
-         "...bbbbbbbbbb...",
-         "...bbbkbbkbbb...",
-         "...bbpbbbbpbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...b.bb.bb.bb...",
-         "................"],
-        ["................",
-         ".........zzz....",
-         "...........z....",
-         "..........z.....",
-         ".........zzz....",
-         "................",
-         ".....bbbbbb.....",
-         "....bbbbbbbb....",
-         "...bbbbbbbbbb...",
-         "...bbbkbbkbbb...",
-         "...bbpbbbbpbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bbbbbbbbbb...",
-         "...bb.bb.bb.b...",
-         "................"],
-    ],
-}
-
-CAPYBARA = {
-    "walk": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "..........a..a..",
-         "........hhhhhh..",
-         "....bbbbhhhehhh.",
-         "...bbbbbbhhhhhnn",
-         "..bbbbbbbbhhhhhh",
-         "..bbbbbbbbbbbmm.",
-         "..bbbbbbbbbbbb..",
-         "..bbbbbbbbbbbb..",
-         "...f.f....f.f...",
-         "..f...f..f...f..",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "..........a..a..",
-         "........hhhhhh..",
-         "....bbbbhhhehhh.",
-         "...bbbbbbhhhhhnn",
-         "..bbbbbbbbhhhhhh",
-         "..bbbbbbbbbbbmm.",
-         "..bbbbbbbbbbbb..",
-         "..bbbbbbbbbbbb..",
-         "...f.f....f.f...",
-         "...f.f....f.f...",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "..........a..a..",
-         "........hhhhhh..",
-         "....bbbbhhhehhh.",
-         "...bbbbbbhhhhhnn",
-         "..bbbbbbbbhhhhhh",
-         "..bbbbbbbbbbbmm.",
-         "..bbbbbbbbbbbb..",
-         "..bbbbbbbbbbbb..",
-         "....ff.....ff...",
-         "....ff.....ff...",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "..........a..a..",
-         "........hhhhhh..",
-         "....bbbbhhhehhh.",
-         "...bbbbbbhhhhhnn",
-         "..bbbbbbbbhhhhhh",
-         "..bbbbbbbbbbbmm.",
-         "..bbbbbbbbbbbb..",
-         "..bbbbbbbbbbbb..",
-         "...f.f....f.f...",
-         "...f.f....f.f...",
-         "................"],
-    ],
-    "idle": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "..........a..a..",
-         "........hhhhhh..",
-         "....bbbbhhhehhh.",
-         "...bbbbbbhhhhhnn",
-         "..bbbbbbbbhhhhhh",
-         "..bbbbbbbbbbbmm.",
-         "..bbbbbbbbbbbb..",
-         "..bbbbbbbbbbbb..",
-         "...f.f....f.f...",
-         "...f.f....f.f...",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         "................",
-         "..........a..a..",
-         "........hhhhhh..",
-         "....bbbbhhhkhhh.",
-         "...bbbbbbhhhhhnn",
-         "..bbbbbbbbhhhhhh",
-         "..bbbbbbbbbbbmm.",
-         "..bbbbbbbbbbbb..",
-         "..bbbbbbbbbbbb..",
-         "...f.f....f.f...",
-         "...f.f....f.f...",
-         "................"],
-    ],
-    "sleep": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "....z...........",
-         "....zz..........",
-         "................",
-         "................",
-         "..........a..a..",
-         "........hhhhhh..",
-         "....bbbbhhhkhhh.",
-         "...bbbbbbhhhhhnn",
-         "..bbbbbbbbhhhhhh",
-         "..bbbbbbbbbbbmm.",
-         "..bbbbbbbbbbbb..",
-         "................"],
-        ["................",
-         "................",
-         ".....zzz........",
-         ".......z........",
-         "......z.........",
-         ".....zzz........",
-         "................",
-         "................",
-         "..........a..a..",
-         "........hhhhhh..",
-         "...bbbbbhhhkhhh.",
-         "..bbbbbbbhhhhhnn",
-         "..bbbbbbbbhhhhhh",
-         "..bbbbbbbbbbbmm.",
-         "..bbbbbbbbbbbb..",
-         "................"],
-    ],
-}
-
-PENGUIN = {
-    "walk": [
-        ["................",
-         "................",
-         "................",
-         ".......bbbb.....",
-         "......bbbbbb....",
-         ".....bblllllb...",
-         ".....blelleel...",
-         ".....bllnnllb...",
-         "....bblllllllb..",
-         "...bbblllllllb..",
-         "...bbblllllllb..",
-         "....bblllllllb..",
-         ".....blllllll...",
-         ".....ff...ff....",
-         "................",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "........bbbb....",
-         ".......bbbbbb...",
-         "......bblllllb..",
-         "......blelleel..",
-         "......bllnnllb..",
-         ".....bblllllllb.",
-         "....bbblllllllb.",
-         "....bbblllllllb.",
-         ".....bblllllllb.",
-         "......blllllll..",
-         ".......ff...ff..",
-         "................",
-         "................"],
-    ],
-    "idle": [
-        ["................",
-         "................",
-         "................",
-         ".......bbbb.....",
-         "......bbbbbb....",
-         ".....bblllllb...",
-         ".....blelleel...",
-         ".....bllnnllb...",
-         "....bblllllllb..",
-         "...bbblllllllb..",
-         "...bbblllllllb..",
-         "....bblllllllb..",
-         ".....blllllll...",
-         ".....ff...ff....",
-         "................",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         ".......bbbb.....",
-         "......bbbbbb....",
-         ".....bblllllb...",
-         ".....blkllkkl...",
-         ".....bllnnllb...",
-         "...bbblllllllbb.",
-         "..b.bblllllllb.b",
-         "....bblllllllb..",
-         "....bblllllllb..",
-         ".....blllllll...",
-         ".....ff...ff....",
-         "................",
-         "................"],
-    ],
-    "sleep": [
-        ["................",
-         "................",
-         "...........z....",
-         "...........zz...",
-         "................",
-         "................",
-         ".......bbbb.....",
-         "......bbbbbb....",
-         ".....bblllllb...",
-         ".....blkllkkl...",
-         ".....bllnnllb...",
-         "....bblllllllb..",
-         "...bbblllllllb..",
-         "....bblllllllb..",
-         ".....ff...ff....",
-         "................"],
-        ["................",
-         "..........zzz...",
-         "............z...",
-         "...........z....",
-         "..........zzz...",
-         "................",
-         ".......bbbb.....",
-         "......bbbbbb....",
-         ".....bblllllb...",
-         ".....blkllkkl...",
-         ".....bllnnllb...",
-         "....bblllllllb..",
-         "...bbblllllllbb.",
-         "....bblllllllb..",
-         ".....ff...ff....",
-         "................"],
-    ],
-}
-
-AXOLOTL = {
-    "walk": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "........x....x..",
-         ".........hhhh.x.",
-         ".......xhhhhhh..",
-         "........hehheh..",
-         "........hhmmhh.x",
-         "..tbbbbbbhhhhh..",
-         ".ttbbbbbbbbbb...",
-         "..tbbllllllbb...",
-         "...bbbbbbbbbb...",
-         "...f..f...f..f..",
-         "..f....f.f....f.",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         "........x....x..",
-         ".........hhhh.x.",
-         ".......xhhhhhh..",
-         "........hehheh..",
-         "........hhmmhh.x",
-         "...bbbbbbhhhhh..",
-         ".ttbbbbbbbbbb...",
-         "tt.bbllllllbb...",
-         "...bbbbbbbbbb...",
-         "...f..f...f..f..",
-         "...f..f...f..f..",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         "........x....x..",
-         ".........hhhh.x.",
-         ".......xhhhhhh..",
-         "........hehheh..",
-         "........hhmmhh.x",
-         "..tbbbbbbhhhhh..",
-         ".ttbbbbbbbbbb...",
-         "..tbbllllllbb...",
-         "...bbbbbbbbbb...",
-         "....f.f....f.f..",
-         "....f.f....f.f..",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         "........x....x..",
-         ".........hhhh.x.",
-         ".......xhhhhhh..",
-         "........hehheh..",
-         "........hhmmhh.x",
-         "...bbbbbbhhhhh..",
-         ".ttbbbbbbbbbb...",
-         "tt.bbllllllbb...",
-         "...bbbbbbbbbb...",
-         "...f..f...f..f..",
-         "...f..f...f..f..",
-         "................"],
-    ],
-    "idle": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "........x....x..",
-         ".........hhhh.x.",
-         ".......xhhhhhh..",
-         "........hehheh..",
-         "........hhmmhh.x",
-         "..tbbbbbbhhhhh..",
-         ".ttbbbbbbbbbb...",
-         "..tbbllllllbb...",
-         "...bbbbbbbbbb...",
-         "...f..f...f..f..",
-         "...f..f...f..f..",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         ".........x...x..",
-         ".......x.hhhh.x.",
-         "........hhhhhh.x",
-         "........hkhhkh..",
-         "........hhmmhh..",
-         "..tbbbbbbhhhhh..",
-         ".ttbbbbbbbbbb...",
-         "..tbbllllllbb...",
-         "...bbbbbbbbbb...",
-         "...f..f...f..f..",
-         "...f..f...f..f..",
-         "................"],
-    ],
-    "sleep": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "....z...........",
-         "....zz..........",
-         "................",
-         "........x....x..",
-         ".........hhhh.x.",
-         ".......xhhhhhh..",
-         "........hkhhkh..",
-         "........hhmmhh.x",
-         "..tbbbbbbhhhhh..",
-         ".ttbbbbbbbbbbb..",
-         "..tbbbbbbbbbbb..",
-         "................"],
-        ["................",
-         "................",
-         ".....zzz........",
-         ".......z........",
-         "......z.........",
-         ".....zzz........",
-         "................",
-         "........x....x..",
-         ".........hhhh.x.",
-         ".......xhhhhhh..",
-         "........hkhhkh..",
-         "........hhmmhh.x",
-         "...bbbbbbhhhhh..",
-         "..bbbbbbbbbbbb..",
-         ".ttbbbbbbbbbbb..",
-         "................"],
-    ],
-}
-
-DUCK = {
-    "walk": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         ".........hhhh...",
-         "........hhhhhh..",
-         "........hhhehhnn",
-         "........hhhhhhnn",
-         "...b....hhhhhh..",
-         "...bbbbbbhhhh...",
-         "...bbbbbbbbbbb..",
-         "....bbblllbbbb..",
-         ".....bbbbbbbb...",
-         "......ff..ff....",
-         ".....fff.fff....",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         ".........hhhh...",
-         "........hhhhhh..",
-         "........hhhehhnn",
-         "........hhhhhhnn",
-         "...b....hhhhhh..",
-         "...bbbbbbhhhh...",
-         "...bbbbbbbbbbb..",
-         "....bbblllbbbb..",
-         ".....bbbbbbbb...",
-         "......ff..ff....",
-         "......ff..ff....",
-         ".....fff.fff....",
-         "................"],
-    ],
-    "idle": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         ".........hhhh...",
-         "........hhhhhh..",
-         "........hhhehhnn",
-         "........hhhhhhnn",
-         "...b....hhhhhh..",
-         "...bbbbbbhhhh...",
-         "...bbbbbbbbbbb..",
-         "....bbblllbbbb..",
-         ".....bbbbbbbb...",
-         "......ff..ff....",
-         ".....fff.fff....",
-         "................"],
-        ["................",
-         "................",
-         "................",
-         "................",
-         ".........hhhh...",
-         "........hhhhhh..",
-         "........hhhkhhnn",
-         "........hhhhhhnn",
-         "..b.....hhhhhh..",
-         "...bbbbbbhhhh...",
-         "...bbbbbbbbbbb..",
-         "....bbblllbbbb..",
-         ".....bbbbbbbb...",
-         "......ff..ff....",
-         ".....fff.fff....",
-         "................"],
-    ],
-    "sleep": [
-        ["................",
-         "................",
-         "................",
-         "................",
-         "....z...........",
-         "....zz..........",
-         "................",
-         ".........hhhh...",
-         "........hhhhhh..",
-         "........hhhkhhnn",
-         "........hhhhhhnn",
-         "...b....hhhhhh..",
-         "...bbbbbbhhhh...",
-         "...bbbbbbbbbbb..",
-         "....bbbbbbbbbb..",
-         "................"],
-        ["................",
-         "................",
-         ".....zzz........",
-         ".......z........",
-         "......z.........",
-         ".....zzz........",
-         "................",
-         ".........hhhh...",
-         "........hhhhhh..",
-         "........hhhkhhnn",
-         "........hhhhhhnn",
-         "...b....hhhhhh..",
-         "..bbbbbbbhhhh...",
-         "..bbbbbbbbbbbb..",
-         "...bbbbbbbbbbb..",
-         "................"],
-    ],
-}
-
-
-def hand_drawn(spec):
-    out = {}
-    for kind, frames in spec.items():
-        grids = [g(f) for f in frames]
-        if kind == "walk" and len(grids) == 2:  # 2-frame walkers -> 4 slots
-            grids = [grids[0], grids[1], grids[0], grids[1]]
-        out[kind] = grids
+def widen_closed(g):
+    out = copy(g)
+    for y in range(SIZE):
+        xs = [x for x in range(SIZE) if g[y][x] == "k"]
+        if not xs:
+            continue
+        targets = [xs[0] - 1, xs[-1] + 1] if len(xs) > 1 else [xs[0] + 1]
+        for tx in targets:
+            if 0 <= tx < SIZE and g[y][tx] in "hb":
+                out[y][tx] = "k"
     return out
+
+
+BUNNY = friend(
+    walk=[
+        ["..........a..a..", "..........a..a..", "..........p..p..", "..........p..p..",
+         ".........hhhhhh.", ".........hehhjh.", ".........hhnnhh.", "...bbbbbbhhmmhh.",
+         "..bbbbbbbbbbbb..", ".tbbbbbbbbbbbb..", "..bbbbblllllbb..", "..bbbbbbbbbbb...",
+         "...gg.....gg....", EMPTY],
+        ["..........a..a..", "..........a..a..", "..........p..p..", "..........p..p..",
+         ".........hhhhhh.", ".........hehhjh.", ".........hhnnhh.", "...bbbbbbhhmmhh.",
+         "..bbbbbbbbbbbb..", ".tbbbbbbbbbbbb..", "..bbbbblllllbb..", "..bbbbbbbbbbb...",
+         ".gg........gg...", EMPTY, EMPTY],
+    ],
+    sit=[
+        ["..........a..a..", "..........a..a..", "..........p..p..", ".........hhhhhh.",
+         ".........hehhjh.", ".........hhnnhh.", "...bbbbbbhhmmhh.", "..bbbbbbbbbbbb..",
+         ".tbbbbbbbbbbbb..", "..bbbbblllllbb..", "..bbbbbbbbbbb...", "...gg.....gg....", EMPTY],
+        ["..........a.....", "..........a..aa.", "..........p..pp.", ".........hhhhhh.",
+         ".........hkhhkh.", ".........hhnnhh.", "...bbbbbbhhmmhh.", "..bbbbbbbbbbbb..",
+         ".tbbbbbbbbbbbb..", "..bbbbblllllbb..", "..bbbbbbbbbbb...", "...gg.....gg....", EMPTY],
+    ],
+    sleep=[
+        ["........aaaaa...", ".........ppppa..", ".........hhhhhh.", ".........hkhhkh.",
+         "...bbbbbbhhnnhh.", "..bbbbbbbhhmmhh.", ".tbbbbbbbbbbbbb.", "..bbbbbbbbbbbb..", EMPTY],
+        ["........aaaaa...", ".........ppppa..", ".........hhhhhh.", ".........hkhhkh.",
+         "...bbbbbbhhnnhh.", "..bbbbbbbhhmmhh.", ".tbbbbbbbbbbbbb.", ".bbbbbbbbbbbbbb.", EMPTY],
+    ],
+)
+
+FROG = friend(
+    walk=[
+        ["..hh......hh....", ".heeh....hjjh...", ".hhhhhhhhhhhh...", ".hhhhhhhhhhhh...",
+         ".hmmmmmmmmmmh...", ".bbllllllllbb...", ".bbbbbbbbbbbb...", "gg..........gg..", EMPTY],
+        ["...hh......hh...", "..heeh....hjjh..", "..hhhhhhhhhhhh..", "..hhhhhhhhhhhh..",
+         "..hmmmmmmmmmmh..", "..bbllllllllbb..", "..bbbbbbbbbbbb..", ".gg..........gg.",
+         "gg............gg", EMPTY, EMPTY, EMPTY],
+    ],
+    sit=[
+        ["..hh......hh....", ".heeh....hjjh...", ".hhhhhhhhhhhh...", ".hhhhhhhhhhhh...",
+         ".hmmmmmmmmmmh...", ".bbllllllllbb...", ".bbbbbbbbbbbb...", "gg..........gg..", EMPTY],
+        ["..hh......hh....", ".hkkh....hkkh...", ".hhhhhhhhhhhh...", ".hhhhhhhhhhhh...",
+         ".hmmmmmmmmmmh...", ".bbllllllllbb...", ".bbbbbbbbbbbb...", "gg..........gg..", EMPTY],
+    ],
+    sleep=[
+        ["..hh......hh....", ".hkkh....hkkh...", ".hhhhhhhhhhhh...", ".hmmmmmmmmmmh...",
+         ".bbllllllllbb...", "gbbbbbbbbbbbbg..", EMPTY],
+        ["..hh......hh....", ".hkkh....hkkh...", ".hhhhhhhhhhhh...", ".hhhhhhhhhhhh...",
+         ".bbllllllllbb...", "gbbbbbbbbbbbbg..", EMPTY],
+    ],
+)
+
+GHOST = friend(
+    walk=[
+        [".....bbbbbb.....", "....bbbbbbbb....", "...bbbbbbbbbb...", "...bbbebbjbbb...",
+         "...bbbebbjbbb...", "...bbpbbbbpbb...", "...bbbbmmbbbb...", "...bbbbbbbbbb...",
+         "...bbbbbbbbbb...", "...bbbbbbbbbb...", "...b.bb.bb.bb...", EMPTY, EMPTY],
+        [".....bbbbbb.....", "....bbbbbbbb....", "...bbbbbbbbbb...", "...bbbebbjbbb...",
+         "...bbbebbjbbb...", "...bbpbbbbpbb...", "...bbbbmmbbbb...", "...bbbbbbbbbb...",
+         "...bbbbbbbbbb...", "...bbbbbbbbbb...", "...bb.bb.bb.b...", EMPTY, EMPTY, EMPTY],
+    ],
+    sit=[
+        [".....bbbbbb.....", "....bbbbbbbb....", "...bbbbbbbbbb...", "...bbbebbjbbb...",
+         "...bbbebbjbbb...", "...bbpbbbbpbb...", "...bbbbmmbbbb...", "...bbbbbbbbbb...",
+         "...bbbbbbbbbb...", "...bbbbbbbbbb...", "...b.bb.bb.bb...", EMPTY, EMPTY],
+        [".....bbbbbb.....", "....bbbbbbbb....", "...bbbbbbbbbb...", "...bbbbbbbbbb...",
+         "...bbbkbbkbbb...", "...bbpbbbbpbb...", "...bbbbmmbbbb...", "...bbbbbbbbbb...",
+         "...bbbbbbbbbb...", "...bbbbbbbbbb...", "...b.bb.bb.bb...", EMPTY, EMPTY],
+    ],
+    sleep=[
+        [".....bbbbbb.....", "....bbbbbbbb....", "...bbbbbbbbbb...", "...bbbkbbkbbb...",
+         "...bbpbbbbpbb...", "...bbbbbbbbbb...", "...bbbbbbbbbb...", "...bbbbbbbbbb...",
+         "...b.bb.bb.bb...", EMPTY],
+        [".....bbbbbb.....", "....bbbbbbbb....", "...bbbbbbbbbb...", "...bbbkbbkbbb...",
+         "...bbpbbbbpbb...", "...bbbbbbbbbb...", "...bbbbbbbbbb...", "...bbbbbbbbbb...",
+         "...bb.bb.bb.b...", EMPTY],
+    ],
+)
+
+CAPYBARA = friend(
+    walk=[
+        ["..........a..a..", "........hhhhhh..", "....bbbbhhhehhh.", "...bbbbbbhhhhhnn",
+         "..bbbbbbbbhhhhhh", "..bbbbbbbbbbbmm.", "..bbbbbbbbbbbb..", "..bbbbbbbbbbbb..",
+         "...f.f....f.f...", "..g...g..g...g..", EMPTY],
+        ["..........a..a..", "........hhhhhh..", "....bbbbhhhehhh.", "...bbbbbbhhhhhnn",
+         "..bbbbbbbbhhhhhh", "..bbbbbbbbbbbmm.", "..bbbbbbbbbbbb..", "..bbbbbbbbbbbb..",
+         "....ff.....ff...", "....gg.....gg...", EMPTY],
+    ],
+    sit=[
+        ["..........a..a..", "........hhhhhh..", "....bbbbhhhehhh.", "...bbbbbbhhhhhnn",
+         "..bbbbbbbbhhhhhh", "..bbbbbbbbbbbmm.", "..bbbbbbbbbbbb..", "..bbbbbbbbbbbb..",
+         "...f.f....f.f...", "...g.g....g.g...", EMPTY],
+        ["..........a..a..", "........hhhhhh..", "....bbbbhhhkhhh.", "...bbbbbbhhhhhnn",
+         "..bbbbbbbbhhhhhh", "..bbbbbbbbbbbmm.", "..bbbbbbbbbbbb..", "..bbbbbbbbbbbb..",
+         "...f.f....f.f...", "...g.g....g.g...", EMPTY],
+    ],
+    sleep=[
+        ["..........a..a..", "........hhhhhh..", "....bbbbhhhkhhh.", "...bbbbbbhhhhhnn",
+         "..bbbbbbbbhhhhhh", "..bbbbbbbbbbbmm.", "..bbbbbbbbbbbb..", EMPTY],
+        ["..........a..a..", "........hhhhhh..", "...bbbbbhhhkhhh.", "..bbbbbbbhhhhhnn",
+         "..bbbbbbbbhhhhhh", "..bbbbbbbbbbbmm.", "..bbbbbbbbbbbb..", EMPTY],
+    ],
+)
+
+PENGUIN = friend(
+    walk=[
+        [".......bbbb.....", "......bbbbbb....", ".....bblllllb...", ".....blellljl...",
+         ".....bllnnllb...", "....bblllllllb..", "...bbblllllllb..", "...bbblllllllb..",
+         "....bblllllllb..", ".....blllllll...", ".....gg...gg....", EMPTY, EMPTY],
+        ["........bbbb....", ".......bbbbbb...", "......bblllllb..", "......blellljl..",
+         "......bllnnllb..", ".....bblllllllb.", "....bbblllllllb.", "....bbblllllllb.",
+         ".....bblllllllb.", "......blllllll..", ".......gg...gg..", EMPTY, EMPTY],
+    ],
+    sit=[
+        [".......bbbb.....", "......bbbbbb....", ".....bblllllb...", ".....blellljl...",
+         ".....bllnnllb...", "....bblllllllb..", "...bbblllllllb..", "...bbblllllllb..",
+         "....bblllllllb..", ".....blllllll...", ".....gg...gg....", EMPTY, EMPTY],
+        [".......bbbb.....", "......bbbbbb....", ".....bblllllb...", ".....blkllkkl...",
+         ".....bllnnllb...", "...bbblllllllbb.", "..b.bblllllllb.b", "....bblllllllb..",
+         "....bblllllllb..", ".....blllllll...", ".....gg...gg....", EMPTY, EMPTY],
+    ],
+    sleep=[
+        [".......bbbb.....", "......bbbbbb....", ".....bblllllb...", ".....blkllkkl...",
+         ".....bllnnllb...", "....bblllllllb..", "...bbblllllllb..", "....bblllllllb..",
+         ".....gg...gg....", EMPTY],
+        [".......bbbb.....", "......bbbbbb....", ".....bblllllb...", ".....blkllkkl...",
+         ".....bllnnllb...", "....bblllllllb..", "...bbblllllllbb.", "....bblllllllb..",
+         ".....gg...gg....", EMPTY],
+    ],
+)
+
+AXOLOTL = friend(
+    walk=[
+        ["........x....x..", ".........hhhh.x.", ".......xhhhhhh..", "........hehhjh..",
+         "........hhmmhh.x", "..tbbbbbbhhhhh..", ".ttbbbbbbbbbb...", "..tbbllllllbb...",
+         "...bbbbbbbbbb...", "...f..f...f..f..", "..g....g.g....g.", EMPTY],
+        ["........x....x..", ".........hhhh.x.", ".......xhhhhhh..", "........hehhjh..",
+         "........hhmmhh.x", "...bbbbbbhhhhh..", ".ttbbbbbbbbbb...", "tt.bbllllllbb...",
+         "...bbbbbbbbbb...", "....f.f....f.f..", "....g.g....g.g..", EMPTY],
+    ],
+    sit=[
+        ["........x....x..", ".........hhhh.x.", ".......xhhhhhh..", "........hehhjh..",
+         "........hhmmhh.x", "..tbbbbbbhhhhh..", ".ttbbbbbbbbbb...", "..tbbllllllbb...",
+         "...bbbbbbbbbb...", "...f..f...f..f..", "...g..g...g..g..", EMPTY],
+        [".........x...x..", ".......x.hhhh.x.", "........hhhhhh.x", "........hkhhkh..",
+         "........hhmmhh..", "..tbbbbbbhhhhh..", ".ttbbbbbbbbbb...", "..tbbllllllbb...",
+         "...bbbbbbbbbb...", "...f..f...f..f..", "...g..g...g..g..", EMPTY],
+    ],
+    sleep=[
+        ["........x....x..", ".........hhhh.x.", ".......xhhhhhh..", "........hkhhkh..",
+         "........hhmmhh.x", "..tbbbbbbhhhhh..", ".ttbbbbbbbbbbb..", "..tbbbbbbbbbbb..", EMPTY],
+        ["........x....x..", ".........hhhh.x.", ".......xhhhhhh..", "........hkhhkh..",
+         "........hhmmhh.x", "...bbbbbbhhhhh..", "..bbbbbbbbbbbb..", ".ttbbbbbbbbbbb..", EMPTY],
+    ],
+)
+
+DUCK = friend(
+    walk=[
+        [".........hhhh...", "........hhhhhh..", "........hhhehhnn", "........hhhhhhnn",
+         "...b....hhhhhh..", "...bbbbbbhhhh...", "...bbbbbbbbbbb..", "....bbblllbbbb..",
+         ".....bbbbbbbb...", "......ff..ff....", ".....ggg.ggg....", EMPTY],
+        [".........hhhh...", "........hhhhhh..", "........hhhehhnn", "........hhhhhhnn",
+         "...b....hhhhhh..", "...bbbbbbhhhh...", "...bbbbbbbbbbb..", "....bbblllbbbb..",
+         ".....bbbbbbbb...", "......ff..ff....", "......ff..ff....", ".....ggg.ggg....", EMPTY],
+    ],
+    sit=[
+        [".........hhhh...", "........hhhhhh..", "........hhhehhnn", "........hhhhhhnn",
+         "...b....hhhhhh..", "...bbbbbbhhhh...", "...bbbbbbbbbbb..", "....bbblllbbbb..",
+         ".....bbbbbbbb...", "......ff..ff....", ".....ggg.ggg....", EMPTY],
+        [".........hhhh...", "........hhhhhh..", "........hhhkhhnn", "........hhhhhhnn",
+         "..b.....hhhhhh..", "...bbbbbbhhhh...", "...bbbbbbbbbbb..", "....bbblllbbbb..",
+         ".....bbbbbbbb...", "......ff..ff....", ".....ggg.ggg....", EMPTY],
+    ],
+    sleep=[
+        [".........hhhh...", "........hhhhhh..", "........hhhkhhnn", "........hhhhhhnn",
+         "...b....hhhhhh..", "...bbbbbbhhhh...", "...bbbbbbbbbbb..", "....bbbbbbbbbb..", EMPTY],
+        [".........hhhh...", "........hhhhhh..", "........hhhkhhnn", "........hhhhhhnn",
+         "...b....hhhhhh..", "..bbbbbbbhhhh...", "..bbbbbbbbbbbb..", "...bbbbbbbbbbb..", EMPTY],
+    ],
+)
 
 
 # ------------------------------------------------------------- catalogue
 
-def pal(o, B, D, L, P, E, G=None, W="#FFFFFF", S="#FFF3A0"):
-    return {"o": o, "B": B, "D": D, "L": L, "P": P, "E": E, "G": G or D, "W": W, "S": S}
+CAT = cat_template()
 
 
+def cat(mods=(), legs_short=False):
+    return with_variants(CAT, mods, legs_short)
+
+
+# id, name, group, frames, palette, paint
 PETS = [
-    # id, Russian name, group, frames, palette, paint
-    ("cat.ginger", "Рыжик", "cats", cat_frames(),
-     pal("#3A1F14", "#EE9A4D", "#C4642A", "#FBE3C4", "#F28AA0", "#2A1A14"), painter(stripes)),
-    ("cat.black", "Уголёк", "cats", cat_frames(),
-     pal("#141019", "#3D3850", "#2A2638", "#57506E", "#E68AA6", "#F5D547"), painter()),
-    ("cat.white", "Снежок", "cats", cat_frames(),
+    # --- classic colours
+    ("cat.ginger", "Рыжик", "cats", cat(),
+     pal("#3A1F14", "#EE9A4D", "#C4642A", "#FBE3C4", "#F28AA0", "#2A1A14"), painter(tabby)),
+    ("cat.peach", "Персик", "cats", cat(),
+     pal("#4A2A1C", "#F7C69A", "#E6A06E", "#FFF1E0", "#F29AAE", "#3A2418"), painter(tabby)),
+    ("cat.black", "Уголёк", "cats", cat(),
+     pal("#100D14", "#34303F", "#26222E", "#4A4458", "#E68AA6", "#F5D547", K="#8C82A0"), painter()),
+    ("cat.white", "Снежок", "cats", cat(),
      pal("#5E5A70", "#F4F1EC", "#D9D4E0", "#FFFFFF", "#F6A0B6", "#4FA3F7"), painter()),
-    ("cat.british", "Британец", "cats", cat_frames(),
+    ("cat.oddeye", "Жемчуг", "cats", cat(),
+     pal("#5E5A70", "#F7F4EF", "#DCD7E3", "#FFFFFF", "#F6A0B6", "#4FA3F7", F="#F5C542"), painter()),
+    ("cat.british", "Британец", "cats", cat(),
      pal("#2B2F3D", "#8E98AB", "#6F788C", "#AEB6C7", "#C99AA8", "#F5A63A"), painter()),
-    ("cat.siamese", "Сиамка", "cats", cat_frames(),
-     pal("#2E201B", "#F2E4CB", "#5C4136", "#FBF3E4", "#E7A2A6", "#4DA6FF"), painter(siamese)),
-    ("cat.calico", "Трёхцветка", "cats", cat_frames(),
+    ("cat.russianblue", "Русская голубая", "cats", cat(),
+     pal("#252A36", "#7F8BA3", "#677289", "#98A3B8", "#C99AA8", "#7CD67A"), painter()),
+    ("cat.smoke", "Дымка", "cats", cat(),
+     pal("#1C1A22", "#5E5A69", "#46424F", "#8D8899", "#D98EA4", "#F2C94C", K="#A59FB2"), painter()),
+    ("cat.chocolate", "Шоколадка", "cats", cat(),
+     pal("#23140D", "#6B4330", "#52321F", "#8A5C44", "#D9909A", "#F2B33D", K="#B88E77"), painter()),
+    ("cat.cinnamon", "Корица", "cats", cat(),
+     pal("#3A2014", "#B8754B", "#93583A", "#D9A27C", "#E59A9A", "#F2B33D"), painter(ticked)),
+    ("cat.lilac", "Лиловый", "cats", cat(),
+     pal("#3D3340", "#C9B7C4", "#A9939F", "#E3D6DF", "#E6A0B4", "#F2B33D"), painter()),
+    # --- patterns
+    ("cat.tabby", "Полосатик", "cats", cat(),
+     pal("#25232B", "#A3A0AC", "#605C6B", "#D9D5DF", "#E59CAE", "#9BD15A"), painter(tabby)),
+    ("cat.silver", "Серебро", "cats", cat(),
+     pal("#1E1F26", "#CDD2DA", "#3C3F4A", "#EEF1F5", "#E59CAE", "#7CD67A"), painter(tabby)),
+    ("cat.calico", "Трёхцветка", "cats", cat(),
      pal("#2E2427", "#F6F0E7", "#3B3236", "#FFFFFF", "#F4A0B0", "#7BC86A", G="#EE9A4D"), painter(calico)),
-    ("cat.tabby", "Полосатик", "cats", cat_frames(),
-     pal("#25232B", "#A3A0AC", "#605C6B", "#D9D5DF", "#E59CAE", "#9BD15A"), painter(stripes)),
-    ("cat.tuxedo", "Фрачник", "cats", cat_frames(),
-     pal("#121016", "#34313F", "#24212C", "#F4F2F7", "#E68AA6", "#CDE86A"), painter(tuxedo)),
-    ("cat.sphynx", "Сфинкс", "cats", cat_frames(ears=ears_big),
-     pal("#4A2B27", "#EBC3B1", "#D29C88", "#F5DACC", "#E98F9A", "#62C9B4"), painter(sphynx)),
-    ("cat.mainecoon", "Мейн-кун", "cats", cat_frames(ears=ears_tufted, tail=[tail_fluffy]),
-     pal("#24150E", "#93603F", "#5A3725", "#EAD4B6", "#E2A08E", "#EBB53B"), painter(stripes)),
-    ("cat.scottish", "Вислоухий", "cats", cat_frames(ears=ears_folded),
-     pal("#2C2832", "#C8C1B7", "#9D958A", "#EFEAE2", "#E2A5AE", "#F2A33A"), painter()),
-    ("cat.bengal", "Бенгал", "cats", cat_frames(),
-     pal("#2A180C", "#E8AE5A", "#6B3F22", "#F8E3BF", "#E59A8C", "#79C95A"), painter(bengal)),
-    ("cat.strawberry", "Клубничка", "cats", cat_frames(),
-     pal("#5A1F36", "#FF9FC3", "#FF5E95", "#FFE3EE", "#FF5C8A", "#6B2B4A"), painter(strawberry)),
-    ("cat.cosmic", "Космокот", "cats", cat_frames(),
-     pal("#0D0F2E", "#2E3480", "#4B52B8", "#6F75E0", "#FF8FD0", "#8FF3FF", S="#FFF3A0"), painter(cosmic)),
+    ("cat.tortie", "Черепашка", "cats", cat(),
+     pal("#141016", "#3A2E30", "#2A2023", "#5A4446", "#D98EA4", "#F2B33D", K="#A08890", G="#D4793A"),
+     painter(tortie)),
+    ("cat.cow", "Коровка", "cats", cat(),
+     pal("#2A262C", "#F5F2EE", "#2B272E", "#FFFFFF", "#F4A0B0", "#5A9E5A"), painter(harlequin)),
+    ("cat.tuxedo", "Фрачник", "cats", cat(),
+     pal("#100D14", "#34313F", "#24212C", "#F4F2F7", "#E68AA6", "#CDE86A", K="#8C82A0"), painter(tuxedo)),
+    ("cat.bicolor", "Биколор", "cats", cat(),
+     pal("#100D14", "#2F2C38", "#211E28", "#F4F2F7", "#E68AA6", "#F5D547", K="#8C82A0"), painter(bicolor)),
+    ("cat.gingerwhite", "Рыжий с белым", "cats", cat(),
+     pal("#3A1F14", "#EE9A4D", "#C4642A", "#FFF8F0", "#F28AA0", "#2A1A14"), painter(bicolor, tabby)),
+    ("cat.van", "Ван", "cats", cat(),
+     pal("#4A3A3A", "#FAF6F0", "#C4642A", "#FFFFFF", "#F4A0B0", "#4FA3F7", G="#EE9A4D"), painter(van)),
+    ("cat.siamese", "Сиамка", "cats", cat(),
+     pal("#2E201B", "#F2E4CB", "#5C4136", "#FBF3E4", "#E7A2A6", "#4DA6FF"), painter(points)),
+    ("cat.bluepoint", "Голубой поинт", "cats", cat(),
+     pal("#2A2D38", "#F1EEEA", "#7E879C", "#FFFFFF", "#D7A6B4", "#4DA6FF"), painter(points)),
+    ("cat.ragdoll", "Рэгдолл", "cats", cat(mods=[tail_fluffy]),
+     pal("#3A2D28", "#F5EDE2", "#8A6E5E", "#FFFFFF", "#E7A2A6", "#3F8CFF"), painter(white_socks, points)),
+    ("cat.birman", "Бирманка", "cats", cat(mods=[tail_fluffy]),
+     pal("#2E201B", "#F3E3C3", "#5C4136", "#FFFFFF", "#E7A2A6", "#4DA6FF"), painter(white_socks, points)),
+    ("cat.tonkinese", "Тонкинез", "cats", cat(),
+     pal("#2E211C", "#C9A27E", "#6A4A3A", "#E2C6A8", "#D9909A", "#5FD1C1"), painter(points)),
+    ("cat.bengal", "Бенгал", "cats", cat(),
+     pal("#2A180C", "#E8AE5A", "#6B3F22", "#F8E3BF", "#E59A8C", "#79C95A"), painter(spotted)),
+    ("cat.mau", "Мау", "cats", cat(),
+     pal("#1E1F26", "#C9CDD4", "#3C3F4A", "#EEF1F5", "#E59CAE", "#9BE36A"), painter(spotted)),
+    ("cat.abyssinian", "Абиссинец", "cats", cat(mods=[ears_big]),
+     pal("#2E1A10", "#C77C45", "#7A4423", "#E8B98E", "#E59A8C", "#F2B33D"), painter(ticked)),
+    ("cat.somali", "Сомали", "cats", cat(mods=[ears_big, tail_fluffy]),
+     pal("#2E1A10", "#D2874A", "#7A4423", "#F0C79C", "#E59A8C", "#F2B33D"), painter(ticked)),
+    # --- shapes
+    ("cat.sphynx", "Сфинкс", "cats", cat(mods=[ears_big]),
+     pal("#4A2B27", "#EBC3B1", "#D29C88", "#F5DACC", "#E98F9A", "#62C9B4"), painter(wrinkles)),
+    ("cat.mainecoon", "Мейн-кун", "cats", cat(mods=[ears_tufted, tail_fluffy]),
+     pal("#24150E", "#93603F", "#5A3725", "#EAD4B6", "#E2A08E", "#EBB53B"), painter(tabby)),
+    ("cat.norwegian", "Норвежская", "cats", cat(mods=[ears_tufted, tail_fluffy]),
+     pal("#25232B", "#8F8A94", "#4E4A56", "#F4F1EC", "#E59CAE", "#9BD15A"), painter(bicolor, tabby)),
+    ("cat.scottish", "Вислоухий", "cats", cat(mods=[ears_folded]),
+     pal("#2C2832", "#A9AFBE", "#7E8597", "#E3E6EE", "#E2A5AE", "#F2A33A"), painter()),
+    ("cat.highland", "Хайленд", "cats", cat(mods=[ears_folded, tail_fluffy]),
+     pal("#4A3628", "#F1DDBF", "#D9B98F", "#FFF6E8", "#E7A2A6", "#C27A3A"), painter(tabby)),
+    ("cat.persian", "Перс", "cats", cat(mods=[ears_small, tail_fluffy]),
+     pal("#4A3A3A", "#F8EFE6", "#E0D2C4", "#FFFFFF", "#F4A0B0", "#E68A2E"), painter()),
+    ("cat.angora", "Ангора", "cats", cat(mods=[tail_fluffy]),
+     pal("#5E5A70", "#FBF9F6", "#E0DCE6", "#FFFFFF", "#F6A0B6", "#7CD67A", F="#4FA3F7"), painter()),
+    ("cat.munchkin", "Манчкин", "cats", cat(legs_short=True),
+     pal("#3A1F14", "#EE9A4D", "#C4642A", "#FFF8F0", "#F28AA0", "#2A1A14"), painter(tabby)),
+    ("cat.bobtail", "Бобтейл", "cats", cat(mods=[tail_bob]),
+     pal("#25232B", "#B8A99A", "#5E5248", "#F4F1EC", "#E59CAE", "#F2B33D"), painter(bicolor, tabby)),
+    # --- fantasy
+    ("cat.strawberry", "Клубничка", "cats", cat(),
+     pal("#5A1F36", "#FF7FA6", "#FF5E95", "#FFE3EE", "#FF5C8A", "#6B2B4A", G="#FFE27A"), painter(seeds)),
+    ("cat.cosmic", "Космокот", "cats", cat(),
+     pal("#0D0F2E", "#2E3480", "#4B52B8", "#6F75E0", "#FF8FD0", "#8FF3FF", K="#8FA0FF"), painter(stars)),
+    ("cat.mint", "Мятный", "cats", cat(),
+     pal("#1F3D35", "#9FE8CF", "#6CCFAE", "#E3FFF5", "#FF9FC0", "#2B5C4E"), painter(tabby)),
+    ("cat.lavender", "Лаванда", "cats", cat(),
+     pal("#2F2347", "#C3A9F0", "#9A7BDB", "#EEE4FF", "#FF9FC9", "#4A3570"), painter(tabby)),
+    ("cat.golden", "Золотце", "cats", cat(mods=[tail_fluffy]),
+     pal("#3D2A08", "#F7C948", "#E0A21E", "#FFF1B8", "#F29AAE", "#3D2A08", S="#FFFFFF"), painter(stars)),
+    ("cat.sakura", "Сакура", "cats", cat(),
+     pal("#4A2236", "#FFD3E2", "#FF9EC2", "#FFF4F8", "#FF7FAA", "#7A3555"), painter(seeds)),
 
-    ("fox", "Лиса", "friends", cat_frames(ears=ears_tall, tail=[tail_fluffy, tail_white_tip]),
-     pal("#2B1408", "#F27A2E", "#3A2318", "#FFF4E8", "#2B1408", "#2B1408"), painter(fox)),
-    ("dog.shiba", "Сиба", "friends", cat_frames(tail=[tail_curl]),
-     pal("#2E1A0E", "#E59C55", "#B8733A", "#F8EAD3", "#2E1A0E", "#2E1A0E"), painter(shiba)),
-    ("bunny", "Зайка", "friends", hand_drawn(BUNNY),
+    # --- friends
+    ("fox", "Лиса", "friends", cat(mods=[ears_big, tail_fluffy]),
+     pal("#2B1408", "#F27A2E", "#3A2318", "#FFF4E8", "#2B1408", "#2B1408", K="#2B1408"), painter(fox_marks)),
+    ("dog.shiba", "Сиба", "friends", cat(mods=[tail_curl_back]),
+     pal("#2E1A0E", "#E59C55", "#B8733A", "#F8EAD3", "#2E1A0E", "#2E1A0E"), painter(shiba_marks)),
+    ("bunny", "Зайка", "friends", BUNNY,
      pal("#4C4256", "#F3EEF5", "#D8D0E0", "#FFFFFF", "#F7A8C0", "#3A2A44"), painter()),
-    ("capybara", "Капибара", "friends", hand_drawn(CAPYBARA),
+    ("capybara", "Капибара", "friends", CAPYBARA,
      pal("#2B1B10", "#A8754A", "#7C5332", "#C99A6E", "#3B2617", "#1E120A"),
-     painter(lambda r, x, y: "D" if r == "n" else ("D" if r == "a" else None))),
-    ("frog", "Лягушка", "friends", hand_drawn(FROG),
+     painter(lambda r, x, y: "D" if r in "na" else None)),
+    ("frog", "Лягушка", "friends", FROG,
      pal("#14301A", "#6CCB5F", "#3E9A47", "#E8F7C8", "#F28AA0", "#14301A"),
-     painter(lambda r, x, y: "W" if r == "e" else ("B" if r == "f" else None))),
-    ("ghost", "Призрак", "friends", hand_drawn(GHOST),
+     painter(lambda r, x, y: "B" if r == "g" else None)),
+    ("ghost", "Призрак", "friends", GHOST,
      pal("#3B3A55", "#EDEBFA", "#C9C5E8", "#B9B4E3", "#FFB3CC", "#2A2840"),
      painter(lambda r, x, y: "D" if r == "m" else None)),
-    ("penguin", "Пингвин", "friends", hand_drawn(PENGUIN),
+    ("penguin", "Пингвин", "friends", PENGUIN,
      pal("#0E1220", "#2C3550", "#1C2238", "#F5F6FA", "#FFB13B", "#0E1220"),
-     painter(lambda r, x, y: "P" if r in "fn" else None)),
-    ("axolotl", "Аксолотль", "friends", hand_drawn(AXOLOTL),
+     painter(lambda r, x, y: "P" if r in "gn" else None)),
+    ("axolotl", "Аксолотль", "friends", AXOLOTL,
      pal("#5A2340", "#FFB3D1", "#FF7FB0", "#FFE3EF", "#FF5C8A", "#3A1530", G="#FF6FA8"),
-     painter(lambda r, x, y: "D" if r == "m" else None)),
-    ("duck", "Утёнок", "friends", hand_drawn(DUCK),
+     painter(lambda r, x, y: "D" if r == "m" else ("G" if r == "x" else None))),
+    ("duck", "Утёнок", "friends", DUCK,
      pal("#4A3A08", "#FFD84A", "#E8B020", "#FFF0A8", "#FF9A2E", "#2A2008"),
-     painter(lambda r, x, y: "P" if r in "fn" else None)),
+     painter(lambda r, x, y: "P" if r in "gfn" else None)),
 ]
 
 
 # --------------------------------------------------------------- output
 
-def finalize(grid, paint):
-    """Outline + region->role. Returns 16 strings of role letters ('.' empty)."""
-    lined = add_outline(grid)
-    rows = []
+def finalize(g, paint):
+    """Outline + region->role. Returns one 256-char string ('.' = empty)."""
+    lined = add_outline(g)
+    out = []
     for y in range(SIZE):
-        row = ""
         for x in range(SIZE):
             c = lined[y][x]
-            if c == ".":
-                row += "."
-            elif c == "o":
-                row += "o"
+            if c in ".o":
+                out.append(c)
             else:
                 role = paint(c, x, y)
                 assert role in ROLES, f"bad role {role!r} for region {c!r}"
-                row += role
-        rows.append(row)
-    return rows
-
-
-def hex_to_int(h):
-    return int(h.lstrip("#"), 16)
+                out.append(role)
+    return "".join(out)
 
 
 def build():
@@ -1289,19 +828,14 @@ def build():
     for pid, name, group, frames, palette, paint in PETS:
         assert pid not in ids, pid
         ids.add(pid)
-        for kind in ("walk", "idle", "sleep"):
-            assert kind in frames, f"{pid} misses {kind}"
-        done = {k: [finalize(gr, paint) for gr in v] for k, v in frames.items()}
+        assert "walk" in frames and "sit" in frames and "sleep" in frames, pid
+        done = {pose: [finalize(g, paint) for g in frames[pose]] for pose in POSES if pose in frames}
         pets.append((pid, name, group, palette, done))
     return pets
 
 
-def swift_frames(frames):
-    lines = []
-    for f in frames:
-        body = ",\n                ".join(f'"{r}"' for r in f)
-        lines.append(f"            [\n                {body},\n            ]")
-    return "[\n" + ",\n".join(lines) + ",\n        ]"
+def hex_to_int(h):
+    return int(h.lstrip("#"), 16)
 
 
 def write_swift(pets):
@@ -1309,9 +843,9 @@ def write_swift(pets):
         "// Generated by tools/sprites/generate.py. Do not edit by hand:",
         "// change the generator and run it again.",
         "//",
-        "// Each frame is 16 rows of 16 characters. A character is a palette role:",
-        "// o outline, B base, D dark, L light, P pink, E eye, G accent, W white,",
-        "// S star, '.' transparent.",
+        "// Each frame is 256 characters: 16 rows of 16, top to bottom. A character",
+        "// is a palette role: o outline, B base, D dark, L light, P pink, E eye,",
+        "// F second eye, K closed eye, G accent, W white, S star, '.' transparent.",
         "",
         "enum SpriteCatalog {",
         "    static let pets: [PetSpriteData] = [",
@@ -1323,9 +857,13 @@ def write_swift(pets):
         out.append(f'            name: "{name}",')
         out.append(f"            group: .{group},")
         out.append(f"            palette: [{palette_items}],")
-        out.append(f"            walk: {swift_frames(frames['walk'])},")
-        out.append(f"            idle: {swift_frames(frames['idle'])},")
-        out.append(f"            sleep: {swift_frames(frames['sleep'])}")
+        out.append("            poses: [")
+        for pose, strings in frames.items():
+            out.append(f'                "{pose}": [')
+            for s in strings:
+                out.append(f'                    "{s}",')
+            out.append("                ],")
+        out.append("            ]")
         out.append("        ),")
     out.append("    ]")
     out.append("}")
@@ -1334,29 +872,31 @@ def write_swift(pets):
         fh.write("\n".join(out) + "\n")
 
 
-def write_preview(pets, scale=6):
+def write_preview(pets, scale=4):
     try:
         from PIL import Image
     except ImportError:
         print("Pillow not installed, skipping preview", file=sys.stderr)
         return
-    cols = 8  # 4 walk + 2 idle + 2 sleep
-    cell = (SIZE + 2) * scale
-    img = Image.new("RGB", (cols * cell, len(pets) * cell), (0, 0, 0))
+    columns = [(pose, i) for pose in POSES for i in range(len(CAT[pose]))]
+    cell = (SIZE + 1) * scale
+    img = Image.new("RGB", (len(columns) * cell, len(pets) * cell), (0, 0, 0))
     for row, (_, _, _, palette, frames) in enumerate(pets):
-        seq = frames["walk"] + frames["idle"] + frames["sleep"]
-        for col, f in enumerate(seq):
-            for y, line in enumerate(f):
-                for x, c in enumerate(line):
-                    if c == ".":
-                        continue
-                    h = palette[c].lstrip("#")
-                    rgb = tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
-                    x0 = col * cell + (x + 1) * scale
-                    y0 = row * cell + (y + 1) * scale
-                    for yy in range(scale):
-                        for xx in range(scale):
-                            img.putpixel((x0 + xx, y0 + yy), rgb)
+        for col, (pose, i) in enumerate(columns):
+            seq = frames.get(pose)
+            if not seq:
+                continue
+            f = seq[i % len(seq)]
+            for k, c in enumerate(f):
+                if c == ".":
+                    continue
+                y, x = divmod(k, SIZE)
+                h = palette[c].lstrip("#")
+                rgb = tuple(int(h[j:j + 2], 16) for j in (0, 2, 4))
+                x0, y0 = col * cell + x * scale, row * cell + y * scale
+                for yy in range(scale):
+                    for xx in range(scale):
+                        img.putpixel((x0 + xx, y0 + yy), rgb)
     img.save(PREVIEW_OUT)
 
 

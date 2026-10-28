@@ -4,24 +4,25 @@ import SwiftUI
 struct PetPickerView: View {
     let title: String
     let selectedID: String
-    let onPick: (PetSprite) -> Void
+    let onPick: (String) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
-    private let columns = [GridItem(.adaptive(minimum: 96), spacing: 12)]
+    private let columns = [GridItem(.adaptive(minimum: 92), spacing: 10)]
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     ForEach(PetGroup.allCases, id: \.self) { group in
-                        Text(group.title)
+                        let pets = PetCatalog.entries(in: group)
+                        Text("\(group.title) · \(pets.count)")
                             .font(Theme.pixelFont(15))
                             .foregroundStyle(Theme.cream)
-                        LazyVGrid(columns: columns, spacing: 12) {
-                            ForEach(PetCatalog.pets(in: group)) { pet in
-                                PetTile(pet: pet, isSelected: pet.id == selectedID) {
-                                    onPick(pet)
+                        LazyVGrid(columns: columns, spacing: 10) {
+                            ForEach(pets) { pet in
+                                PetTile(id: pet.id, name: pet.name, isSelected: pet.id == selectedID) {
+                                    onPick(pet.id)
                                     dismiss()
                                 }
                             }
@@ -43,7 +44,8 @@ struct PetPickerView: View {
 }
 
 private struct PetTile: View {
-    let pet: PetSprite
+    let id: String
+    let name: String
     let isSelected: Bool
     let action: () -> Void
 
@@ -51,13 +53,13 @@ private struct PetTile: View {
         Button(action: action) {
             VStack(spacing: 6) {
                 // Only the selected pet is animated: dozens of timelines would
-                // waste battery for nothing.
-                PetPortrait(pet: pet, pixel: 3, animated: isSelected)
-                Text(pet.name)
-                    .font(Theme.roundedFont(13))
+                // waste battery for nothing. LazyVGrid parses sprites on demand.
+                PetPortrait(pet: PetCatalog.pet(id), pixel: 3, animated: isSelected)
+                Text(name)
+                    .font(Theme.roundedFont(12))
                     .foregroundStyle(isSelected ? Theme.peach : Theme.cream)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.7)
             }
             .padding(8)
             .frame(maxWidth: .infinity)
@@ -68,8 +70,7 @@ private struct PetTile: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(pet.name)
+        .accessibilityLabel(name)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .sensoryFeedback(.selection, trigger: isSelected)
     }
 }

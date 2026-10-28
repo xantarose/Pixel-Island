@@ -4,26 +4,65 @@ import SwiftUI
 // Views shown by the Live Activity. They live in Shared so the app can render
 // the exact same views as a preview (with `.inApp` playback).
 
-/// Points per art pixel in the compact island. 16 px * 2 pt = 32 pt tall.
-private let compactPixel: CGFloat = 2
-/// How far the pet strolls inside the compact island, in art pixels.
-private let compactRange = 6
+/// Sizes of every place a pet appears. `pixel` = points per art pixel;
+/// multiples of 1/3 stay sharp on 3x screens.
+enum StageLayout {
+    case compact, minimal, expanded, lockScreen
 
-private extension IslandState {
-    func isFocusing(isStale: Bool, now: Date = .now) -> Bool {
-        guard let focus else { return false }
-        return !isStale && !focus.isFinished(at: now)
+    var width: Int {
+        switch self {
+        case .compact: return 24
+        case .minimal: return 16
+        case .expanded: return 84
+        case .lockScreen: return 110
+        }
     }
 
+    var height: Int {
+        switch self {
+        case .compact, .minimal: return 16
+        case .expanded, .lockScreen: return 20
+        }
+    }
+
+    var pixel: CGFloat {
+        switch self {
+        case .compact, .minimal: return 4.0 / 3.0
+        case .expanded: return 2
+        case .lockScreen: return 7.0 / 3.0
+        }
+    }
+}
+
+private extension IslandState {
     var daysText: String? {
         guard let days = daysTogether() else { return nil }
         return "\(days) \(RussianPlural.days(days))"
     }
 
     var statusText: String {
-        if isSleeping { return "спит" }
+        if isSleeping { return "спят" }
         if focus != nil { return "фокус" }
-        return partner == nil ? "гуляет" : "гуляют"
+        if partner != nil { return activity.title.lowercased() }
+        return pose.title.lowercased()
+    }
+}
+
+/// The big scene (lock screen / expanded island).
+struct MainStage: View {
+    let state: IslandState
+    let layout: StageLayout
+    let mode: PlaybackMode
+
+    var body: some View {
+        StageView(
+            script: Scripts.main(for: state, width: layout.width, height: layout.height),
+            me: state.me.sprite,
+            partner: state.partner?.sprite,
+            effect: state.resolvedEffect,
+            pixel: layout.pixel,
+            mode: mode
+        )
     }
 }
 
@@ -31,14 +70,17 @@ private extension IslandState {
 
 struct CompactLeadingView: View {
     let state: IslandState
-    let isStale: Bool
     let mode: PlaybackMode
 
     var body: some View {
-        let scene: PetScene = state.isSleeping || state.isFocusing(isStale: isStale)
-            ? .sleeping()
-            : .patrol(range: compactRange)
-        PetSceneView(pet: state.me.sprite, scene: scene, pixel: compactPixel, mode: mode)
+        StageView(
+            script: Scripts.compact(for: state, partnerSide: false, width: StageLayout.compact.width, height: StageLayout.compact.height),
+            me: state.me.sprite,
+            partner: nil,
+            effect: state.resolvedEffect,
+            pixel: StageLayout.compact.pixel,
+            mode: mode
+        )
     }
 }
 
@@ -50,20 +92,22 @@ struct CompactTrailingView: View {
     var body: some View {
         if let focus = state.focus, state.isFocusing(isStale: isStale) {
             Text(timerInterval: focus.interval, countsDown: true)
-                .font(Theme.pixelFont(13))
+                .font(Theme.pixelFont(12))
                 .monospacedDigit()
                 .multilineTextAlignment(.trailing)
                 .foregroundStyle(Theme.peach)
-                .frame(width: 46)
-        } else if state.showsHearts {
-            PixelHeart(pixel: 3)
+                .frame(width: 42)
         } else if let partner = state.partner {
-            let scene: PetScene = state.isSleeping
-                ? .sleeping(flipped: true)
-                : .patrol(range: compactRange, startsFacingLeft: true)
-            PetSceneView(pet: partner.sprite, scene: scene, pixel: compactPixel, mode: mode)
+            StageView(
+                script: Scripts.compact(for: state, partnerSide: true, width: StageLayout.compact.width, height: StageLayout.compact.height),
+                me: partner.sprite,
+                partner: partner.sprite,
+                effect: state.resolvedEffect,
+                pixel: StageLayout.compact.pixel,
+                mode: mode
+            )
         } else {
-            PixelHeart(pixel: 2.5)
+            PixelHeart(pixel: 2)
         }
     }
 }
@@ -73,8 +117,15 @@ struct MinimalIslandView: View {
     let mode: PlaybackMode
 
     var body: some View {
-        let scene: PetScene = state.isSleeping ? .sleeping() : .standing()
-        PetSceneView(pet: state.me.sprite, scene: scene, pixel: compactPixel, mode: mode)
+        let pose: SoloPose = state.isSleeping ? .nap : .sit
+        StageView(
+            script: Scripts.solo(pose, width: StageLayout.minimal.width, height: StageLayout.minimal.height, curled: state.isSleeping),
+            me: state.me.sprite,
+            partner: nil,
+            effect: .none,
+            pixel: StageLayout.minimal.pixel,
+            mode: mode
+        )
     }
 }
 
@@ -86,12 +137,13 @@ struct ExpandedLeadingView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(state.me.name)
-                .font(Theme.pixelFont(14))
+                .font(Theme.pixelFont(13))
                 .foregroundStyle(Theme.cream)
                 .lineLimit(1)
             Text(state.statusText)
                 .font(Theme.roundedFont(11, weight: .medium))
                 .foregroundStyle(Theme.muted)
+                .lineLimit(1)
         }
         .padding(.leading, 6)
     }
@@ -104,7 +156,7 @@ struct ExpandedTrailingView: View {
         VStack(alignment: .trailing, spacing: 2) {
             if let partner = state.partner {
                 Text(partner.name)
-                    .font(Theme.pixelFont(14))
+                    .font(Theme.pixelFont(13))
                     .foregroundStyle(Theme.cream)
                     .lineLimit(1)
                 Text(state.daysText ?? "♥")
@@ -112,10 +164,10 @@ struct ExpandedTrailingView: View {
                     .foregroundStyle(Theme.pink)
             } else {
                 Text("Pixel")
-                    .font(Theme.pixelFont(12))
+                    .font(Theme.pixelFont(11))
                     .foregroundStyle(Theme.muted)
                 Text("Island")
-                    .font(Theme.pixelFont(12))
+                    .font(Theme.pixelFont(11))
                     .foregroundStyle(Theme.peach)
             }
         }
@@ -129,29 +181,33 @@ struct ExpandedBottomView: View {
     let mode: PlaybackMode
 
     var body: some View {
-        VStack(spacing: 10) {
-            IslandStage(state: state, pixel: 7.0 / 3.0, range: 10, mode: mode)
+        VStack(spacing: 8) {
+            MainStage(state: state, layout: .expanded, mode: mode)
                 .frame(maxWidth: .infinity)
 
             if let focus = state.focus {
                 FocusRow(focus: focus, isFocusing: state.isFocusing(isStale: isStale))
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Button(intent: PetIntent()) {
                     IslandChip(title: "Погладить", systemImage: "heart.fill", tint: Theme.pink)
-                }
-                Button(intent: ToggleSleepIntent()) {
-                    IslandChip(
-                        title: state.isSleeping ? "Разбудить" : "Спать",
-                        systemImage: state.isSleeping ? "sun.max.fill" : "moon.fill",
-                        tint: Theme.peach
-                    )
                 }
                 if state.focus != nil {
                     Button(intent: StopFocusIntent()) {
                         IslandChip(title: "Стоп", systemImage: "stop.fill", tint: Theme.mint)
                     }
+                } else {
+                    Button(intent: NextActivityIntent()) {
+                        IslandChip(title: "Дальше", systemImage: "sparkles", tint: Theme.mint)
+                    }
+                }
+                Button(intent: ToggleSleepIntent()) {
+                    IslandChip(
+                        title: state.isSleeping ? "Будить" : "Спать",
+                        systemImage: state.isSleeping ? "sun.max.fill" : "moon.fill",
+                        tint: Theme.peach
+                    )
                 }
             }
             .buttonStyle(.plain)
@@ -167,10 +223,11 @@ struct IslandChip: View {
 
     var body: some View {
         Label(title, systemImage: systemImage)
-            .font(Theme.roundedFont(13))
+            .font(Theme.roundedFont(12))
+            .lineLimit(1)
             .foregroundStyle(tint)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
             .background(tint.opacity(0.16), in: Capsule())
     }
 }
@@ -213,7 +270,7 @@ struct LockScreenIslandView: View {
     let mode: PlaybackMode
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
                 title
                 Spacer(minLength: 8)
@@ -227,14 +284,14 @@ struct LockScreenIslandView: View {
                 }
             }
 
-            IslandStage(state: state, pixel: 3, range: 14, mode: mode)
+            MainStage(state: state, layout: .lockScreen, mode: mode)
                 .frame(maxWidth: .infinity)
 
             if let focus = state.focus {
                 FocusRow(focus: focus, isFocusing: state.isFocusing(isStale: isStale))
             }
         }
-        .padding(16)
+        .padding(14)
     }
 
     private var title: some View {

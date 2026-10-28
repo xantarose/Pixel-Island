@@ -13,22 +13,30 @@ enum PetGroup: String, Codable, CaseIterable {
     }
 }
 
-/// What a pet is doing in a given frame.
-enum PetAction: Hashable {
-    case walk
-    case idle
-    case sleep
+/// A body pose. Every cat has all of them; simple critters (frog, ghost…)
+/// only have walk/sit/sleep and borrow the closest one.
+enum PetPose: String, CaseIterable, Hashable {
+    case walk, sit, loaf, sleep, curl, groom, stretch, play
+
+    var fallback: PetPose? {
+        switch self {
+        case .walk: return nil
+        case .sit: return .walk
+        case .loaf, .groom, .stretch, .play: return .sit
+        case .sleep: return .curl
+        case .curl: return .sit
+        }
+    }
 }
 
 /// Raw sprite description written by `tools/sprites/generate.py`.
+/// Every frame is one 256-character string (16 rows of 16).
 struct PetSpriteData {
     let id: String
     let name: String
     let group: PetGroup
     let palette: [Character: UInt32]
-    let walk: [[String]]
-    let idle: [[String]]
-    let sleep: [[String]]
+    let poses: [String: [String]]
 }
 
 /// A horizontal strip of same-coloured pixels. Merging pixels into strips
@@ -40,34 +48,52 @@ struct PixelRun: Hashable {
 }
 
 /// All strips of one palette role inside a frame.
-struct PixelLayer: Identifiable {
+struct PixelLayer: Identifiable, Hashable {
     let role: Character
     let runs: [PixelRun]
     var id: Character { role }
 }
 
 /// One parsed frame: a grid of `width` x `height` art pixels split by colour.
-struct PixelFrame {
+struct PixelFrame: Hashable {
     let width: Int
     let height: Int
     let layers: [PixelLayer]
 
+    /// Rows of equal length, '.' = transparent.
     init(rows: [String]) {
+        self.init(chars: rows.flatMap { Array($0) }, width: rows.first?.count ?? 0)
+    }
+
+    /// One flat string, `width` characters per row.
+    init(flat: String, width: Int) {
+        self.init(chars: Array(flat), width: width)
+    }
+
+    /// Already-known pixels, e.g. particles of an effect.
+    init(width: Int, height: Int, pixels: [(x: Int, y: Int, role: Character)]) {
+        var grid = [Character](repeating: ".", count: max(width * height, 0))
+        for p in pixels where p.x >= 0 && p.x < width && p.y >= 0 && p.y < height {
+            grid[p.y * width + p.x] = p.role
+        }
+        self.init(chars: grid, width: width)
+    }
+
+    private init(chars: [Character], width: Int) {
+        let width = max(width, 1)
         var byRole: [Character: [PixelRun]] = [:]
         var order: [Character] = []
-        var width = 0
-        for (y, row) in rows.enumerated() {
-            let chars = Array(row)
-            width = max(width, chars.count)
+        let height = chars.count / width
+        for y in 0..<height {
             var x = 0
-            while x < chars.count {
-                let c = chars[x]
+            while x < width {
+                let c = chars[y * width + x]
                 guard c != "." else {
                     x += 1
                     continue
                 }
                 var end = x + 1
-                while end < chars.count && chars[end] == c {
+                while end < width && chars[y * width + end] == c {
                     end += 1
                 }
                 if byRole[c] == nil {
@@ -78,7 +104,7 @@ struct PixelFrame {
             }
         }
         self.width = width
-        self.height = rows.count
+        self.height = height
         self.layers = order.map { PixelLayer(role: $0, runs: byRole[$0] ?? []) }
     }
 }
@@ -89,73 +115,68 @@ struct PetSprite: Identifiable {
     let name: String
     let group: PetGroup
     let palette: [Character: Color]
-    let walk: [PixelFrame]
-    let idle: [PixelFrame]
-    let sleep: [PixelFrame]
+    private let poses: [PetPose: [PixelFrame]]
 
     init(_ data: PetSpriteData) {
         id = data.id
         name = data.name
         group = data.group
         palette = data.palette.mapValues { Color(hex: $0) }
-        walk = data.walk.map(PixelFrame.init(rows:))
-        idle = data.idle.map(PixelFrame.init(rows:))
-        sleep = data.sleep.map(PixelFrame.init(rows:))
+        var parsed: [PetPose: [PixelFrame]] = [:]
+        for (key, frames) in data.poses {
+            guard let pose = PetPose(rawValue: key), !frames.isEmpty else { continue }
+            parsed[pose] = frames.map { PixelFrame(flat: $0, width: 16) }
+        }
+        poses = parsed
+    }
+
+    /// Frames for a pose, borrowing a similar pose if this pet lacks it.
+    func frames(_ pose: PetPose) -> [PixelFrame] {
+        var current: PetPose? = pose
+        while let p = current {
+            if let frames = poses[p] { return frames }
+            current = p.fallback
+        }
+        return poses.values.first ?? []
     }
 
     /// Frame lookup that never crashes: the index wraps around.
-    func frame(_ action: PetAction, _ index: Int) -> PixelFrame {
-        let list: [PixelFrame]
-        switch action {
-        case .walk: list = walk
-        case .idle: list = idle
-        case .sleep: list = sleep
-        }
+    func frame(_ pose: PetPose, _ index: Int) -> PixelFrame {
+        let list = frames(pose)
+        guard !list.isEmpty else { return PixelFrame(rows: []) }
         return list[((index % list.count) + list.count) % list.count]
     }
 }
 
 enum PetCatalog {
-    static let all: [PetSprite] = SpriteCatalog.pets.map(PetSprite.init)
-
-    private static let byID: [String: PetSprite] = Dictionary(
-        all.map { ($0.id, $0) },
+    /// Raw data only; a sprite is parsed when it is actually needed, so the
+    /// Live Activity never parses all 50+ pets just to draw two of them.
+    private static let byID: [String: PetSpriteData] = Dictionary(
+        SpriteCatalog.pets.map { ($0.id, $0) },
         uniquingKeysWith: { first, _ in first }
     )
 
     static let defaultID = "cat.ginger"
 
+    static var count: Int { SpriteCatalog.pets.count }
+
     /// Unknown ids (old versions, tampered pair codes) fall back to the ginger cat.
     static func pet(_ id: String) -> PetSprite {
-        byID[id] ?? byID[defaultID] ?? all[0]
+        PetSprite(byID[id] ?? byID[defaultID] ?? SpriteCatalog.pets[0])
     }
 
     static func contains(_ id: String) -> Bool {
         byID[id] != nil
     }
 
-    static func pets(in group: PetGroup) -> [PetSprite] {
-        all.filter { $0.group == group }
+    struct Entry: Identifiable, Hashable {
+        let id: String
+        let name: String
     }
-}
 
-/// Small sprites that are not pets.
-enum Glyphs {
-    static let heart = PixelFrame(rows: [
-        ".oo.oo.",
-        "oPPoPPo",
-        "oPWPPPo",
-        "oPPPPPo",
-        ".oPPPo.",
-        "..oPo..",
-        "...o...",
-    ])
-
-    static let heartPalette: [Character: Color] = [
-        "o": Color(hex: 0x5A1F36),
-        "P": Color(hex: 0xFF6F9F),
-        "W": Color(hex: 0xFFE3EE),
-    ]
+    static func entries(in group: PetGroup) -> [Entry] {
+        SpriteCatalog.pets.filter { $0.group == group }.map { Entry(id: $0.id, name: $0.name) }
+    }
 }
 
 extension Color {

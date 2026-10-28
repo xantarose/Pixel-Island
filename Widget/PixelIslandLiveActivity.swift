@@ -28,7 +28,7 @@ struct PixelIslandLiveActivity: Widget {
                     ExpandedBottomView(state: context.state, isStale: context.isStale, mode: .liveActivity)
                 }
             } compactLeading: {
-                CompactLeadingView(state: context.state, isStale: context.isStale, mode: .liveActivity)
+                CompactLeadingView(state: context.state, mode: .liveActivity)
             } compactTrailing: {
                 CompactTrailingView(state: context.state, isStale: context.isStale, mode: .liveActivity)
             } minimal: {

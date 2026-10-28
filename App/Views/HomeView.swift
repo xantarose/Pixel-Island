@@ -22,6 +22,7 @@ struct HomeView: View {
                 launchCard
                 myPetCard
                 coupleCard
+                activityCard
                 modesCard
                 helpCard
             }
@@ -34,12 +35,12 @@ struct HomeView: View {
             PetPickerView(
                 title: target == .mine ? "Мой питомец" : "Питомец пары",
                 selectedID: target == .mine ? model.state.me.kindID : (model.state.partner?.kindID ?? "")
-            ) { pet in
+            ) { id in
                 model.mutate { state in
                     if target == .mine {
-                        state.me.kindID = pet.id
+                        state.me.kindID = id
                     } else {
-                        state.partner?.kindID = pet.id
+                        state.partner?.kindID = id
                     }
                 }
             }
@@ -198,6 +199,44 @@ struct HomeView: View {
                         .font(Theme.pixelFont(14))
                         .foregroundStyle(Theme.pink)
                 }
+            }
+        }
+    }
+
+    private var activityCard: some View {
+        Card(title: model.state.partner == nil ? "Чем занят" : "Чем заняты вместе") {
+            if model.state.partner != nil {
+                ChoiceGrid(
+                    options: CoupleActivity.allCases,
+                    selection: model.state.activity,
+                    label: { "\($0.emoji) \($0.title)" }
+                ) { activity in
+                    model.mutate { $0.activity = activity; $0.isSleeping = false }
+                }
+                Text("В маленьком островке поза подбирается под занятие сама.")
+                    .font(Theme.roundedFont(13, weight: .regular))
+                    .foregroundStyle(Theme.muted)
+            } else {
+                ChoiceGrid(
+                    options: SoloPose.allCases,
+                    selection: model.state.pose,
+                    label: { "\($0.emoji) \($0.title)" }
+                ) { pose in
+                    model.mutate { $0.pose = pose; $0.isSleeping = false }
+                }
+            }
+
+            Text("Атмосфера")
+                .font(Theme.pixelFont(12))
+                .tracking(1.5)
+                .foregroundStyle(Theme.muted)
+                .padding(.top, 4)
+            ChoiceGrid(
+                options: AtmosphereEffect.allCases,
+                selection: model.state.effect,
+                label: { "\($0.emoji) \($0.title)" }
+            ) { effect in
+                model.mutate { $0.effect = effect }
             }
         }
     }
