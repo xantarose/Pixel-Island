@@ -47,7 +47,7 @@ private extension IslandState {
 
     var statusText: String {
         if isSleeping { return "спят" }
-        if focus != nil { return "фокус" }
+        if isFocusing() { return "фокус" }
         if partner != nil { return activity.title.lowercased() }
         return pose.title.lowercased()
     }
@@ -85,7 +85,8 @@ struct CompactLeadingView: View {
             partner: nil,
             effect: state.resolvedEffect,
             pixel: layout.pixel,
-            mode: mode
+            mode: mode,
+            effectLength: 12
         )
     }
 }
@@ -111,7 +112,8 @@ struct CompactTrailingView: View {
                 partner: partner.sprite,
                 effect: state.resolvedEffect,
                 pixel: layout.pixel,
-                mode: mode
+                mode: mode,
+                effectLength: 12
             )
         } else if state.badge != .none || state.effectScope == .island {
             ZStack {
@@ -121,7 +123,8 @@ struct CompactTrailingView: View {
                         width: layout.width,
                         height: layout.height,
                         pixel: layout.pixel,
-                        mode: mode
+                        mode: mode,
+                        length: 12
                     )
                 }
                 BadgeView(badge: state.badge, pixel: 2, mode: mode)

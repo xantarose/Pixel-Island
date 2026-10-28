@@ -149,10 +149,11 @@ enum IslandWidth: String, Codable, CaseIterable, Hashable {
 /// partner pet or timer to show there).
 enum IslandBadge: String, Codable, CaseIterable, Hashable {
     case none, heart, heartbeat, redHeart, whiteHeart, twoHearts, sparkle, star, moon, paw, sakura
+    case petals, cherries, butterfly, crown, fish, note, cloud, rainbow, snowflake, mushroom, tulip, sun, bow, clover
 
     var title: String {
         switch self {
-        case .none: return "Ничего"
+        case .none: return "Убрать"
         case .heart: return "Сердечко"
         case .heartbeat: return "Бьётся"
         case .redHeart: return "Красное"
@@ -163,6 +164,20 @@ enum IslandBadge: String, Codable, CaseIterable, Hashable {
         case .moon: return "Луна"
         case .paw: return "Лапка"
         case .sakura: return "Сакура"
+        case .petals: return "Лепестки"
+        case .cherries: return "Вишенки"
+        case .butterfly: return "Бабочка"
+        case .crown: return "Корона"
+        case .fish: return "Рыбка"
+        case .note: return "Нотка"
+        case .cloud: return "Облачко"
+        case .rainbow: return "Радуга"
+        case .snowflake: return "Снежинка"
+        case .mushroom: return "Грибок"
+        case .tulip: return "Тюльпан"
+        case .sun: return "Солнце"
+        case .bow: return "Бантик"
+        case .clover: return "Клевер"
         }
     }
 
@@ -179,6 +194,20 @@ enum IslandBadge: String, Codable, CaseIterable, Hashable {
         case .moon: return "🌙"
         case .paw: return "🐾"
         case .sakura: return "🌸"
+        case .petals: return "🌸"
+        case .cherries: return "🍒"
+        case .butterfly: return "🦋"
+        case .crown: return "👑"
+        case .fish: return "🐟"
+        case .note: return "🎵"
+        case .cloud: return "☁️"
+        case .rainbow: return "🌈"
+        case .snowflake: return "❄️"
+        case .mushroom: return "🍄"
+        case .tulip: return "🌷"
+        case .sun: return "☀️"
+        case .bow: return "🎀"
+        case .clover: return "🍀"
         }
     }
 }

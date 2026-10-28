@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var picker: PickerTarget?
     @State private var showsPairSheet = false
     @State private var showsTimerSheet = false
+    @State private var editor: PickerTarget?
 
     enum PickerTarget: String, Identifiable {
         case mine
@@ -36,13 +37,33 @@ struct HomeView: View {
         .sheet(item: $picker) { target in
             PetPickerView(
                 title: target == .mine ? "Мой питомец" : "Питомец пары",
-                selectedID: target == .mine ? model.state.me.kindID : (model.state.partner?.kindID ?? "")
+                selectedID: target == .mine ? model.state.me.displayID : (model.state.partner?.displayID ?? "")
             ) { id in
                 model.mutate { state in
                     if target == .mine {
                         state.me.kindID = id
+                        state.me.look = nil
                     } else {
                         state.partner?.kindID = id
+                        state.partner?.look = nil
+                    }
+                }
+            }
+        }
+        .sheet(item: $editor) { target in
+            if let profile = target == .mine ? model.state.me : model.state.partner {
+                CatEditorView(
+                    title: target == .mine ? "Свой котик" : "Котик пары",
+                    initial: profile
+                ) { look in
+                    model.mutate { state in
+                        if target == .mine {
+                            state.me.look = look
+                            if let look { state.me.kindID = look.baseID }
+                        } else {
+                            state.partner?.look = look
+                            if let look { state.partner?.kindID = look.baseID }
+                        }
                     }
                 }
             }
@@ -63,6 +84,8 @@ struct HomeView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 Task { await model.appBecameActive() }
+            } else if phase == .background {
+                model.flushSync()
             }
         }
     }
@@ -122,13 +145,17 @@ struct HomeView: View {
                         text: model.nameBinding(forPartner: false),
                         onCommit: model.finishEditingNames
                     )
-                    Text(model.state.me.sprite.name)
+                    Text(model.state.me.look == nil ? model.state.me.sprite.name : "свой окрас 🎨")
                         .font(Theme.roundedFont(13, weight: .regular))
                         .foregroundStyle(Theme.muted)
                 }
             }
-            Button("Выбрать другого") { picker = .mine }
-                .buttonStyle(SecondaryButtonStyle())
+            HStack(spacing: 10) {
+                Button("Выбрать другого") { picker = .mine }
+                    .buttonStyle(SecondaryButtonStyle())
+                Button("🎨 Свой окрас") { editor = .mine }
+                    .buttonStyle(SecondaryButtonStyle(tint: Theme.peach))
+            }
         }
     }
 
@@ -158,6 +185,9 @@ struct HomeView: View {
                 }
 
                 togetherRow
+
+                Button("🎨 Перекрасить котика пары") { editor = .partner }
+                    .buttonStyle(SecondaryButtonStyle(tint: Theme.peach))
 
                 HStack(spacing: 10) {
                     Button("Новый код") { showsPairSheet = true }
@@ -265,11 +295,7 @@ struct HomeView: View {
             }
 
             sectionLabel("Значок справа")
-            ChoiceGrid(
-                options: IslandBadge.allCases,
-                selection: model.state.badge,
-                label: { "\($0.emoji) \($0.title)" }
-            ) { badge in
+            BadgePicker(selection: model.state.badge) { badge in
                 model.mutate { $0.badge = badge }
             }
 
@@ -286,6 +312,22 @@ struct HomeView: View {
             ) { scope in
                 model.mutate { $0.effectScope = scope }
             }
+
+            Toggle(isOn: Binding(
+                get: { model.state.batterySaver },
+                set: { on in model.mutate { $0.batterySaver = on } }
+            )) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Экономия батареи")
+                        .font(Theme.roundedFont(15))
+                        .foregroundStyle(Theme.cream)
+                    Text("Котик замирает. В режиме энергосбережения айфона это включается само.")
+                        .font(Theme.roundedFont(12, weight: .regular))
+                        .foregroundStyle(Theme.muted)
+                }
+            }
+            .tint(Theme.mint)
+            .padding(.top, 4)
         }
     }
 

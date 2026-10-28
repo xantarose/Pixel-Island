@@ -13,7 +13,7 @@ struct PixelIslandWidgetBundle: WidgetBundle {
 struct PixelIslandLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: PixelIslandAttributes.self) { context in
-            LockScreenIslandView(state: context.state, isStale: context.isStale, mode: .liveActivity)
+            LockScreenIslandView(state: context.state, isStale: context.isStale, mode: context.state.liveActivityMode)
                 .activityBackgroundTint(Theme.lockBackground)
                 .activitySystemActionForegroundColor(Theme.cream)
         } dynamicIsland: { context in
@@ -25,14 +25,14 @@ struct PixelIslandLiveActivity: Widget {
                     ExpandedTrailingView(state: context.state)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    ExpandedBottomView(state: context.state, isStale: context.isStale, mode: .liveActivity)
+                    ExpandedBottomView(state: context.state, isStale: context.isStale, mode: context.state.liveActivityMode)
                 }
             } compactLeading: {
-                CompactLeadingView(state: context.state, mode: .liveActivity)
+                CompactLeadingView(state: context.state, mode: context.state.liveActivityMode)
             } compactTrailing: {
-                CompactTrailingView(state: context.state, isStale: context.isStale, mode: .liveActivity)
+                CompactTrailingView(state: context.state, isStale: context.isStale, mode: context.state.liveActivityMode)
             } minimal: {
-                MinimalIslandView(state: context.state, mode: .liveActivity)
+                MinimalIslandView(state: context.state, mode: context.state.liveActivityMode)
             }
             .keylineTint(Color(hex: context.state.keyline.hex))
         }

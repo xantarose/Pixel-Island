@@ -120,6 +120,16 @@ final class IslandModel {
         }
     }
 
+    /// App is going to the background: send pending edits right away, or a
+    /// change made just before closing would never reach the island.
+    func flushSync() {
+        guard let pending = syncTask else { return }
+        pending.cancel()
+        syncTask = nil
+        let snapshot = state
+        Task { await IslandController.update(snapshot) }
+    }
+
     private func scheduleSync() {
         syncTask?.cancel()
         let snapshot = state
@@ -188,6 +198,8 @@ private extension IslandState {
         if let partner = copy.partner, !PetCatalog.contains(partner.kindID) {
             copy.partner?.kindID = PetCatalog.defaultID
         }
+        copy.me.look = copy.me.look?.sanitized()
+        copy.partner?.look = copy.partner?.look?.sanitized()
         return copy
     }
 }

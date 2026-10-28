@@ -9,6 +9,8 @@ struct StageView: View {
     /// Points per art pixel. Multiples of 1/3 stay sharp on 3x screens.
     let pixel: CGFloat
     let mode: PlaybackMode
+    /// Frames per particle loop; fewer in the compact island.
+    var effectLength: Int = Effects.length
 
     private var size: CGSize {
         CGSize(width: CGFloat(script.width) * pixel, height: CGFloat(script.height) * pixel)
@@ -29,7 +31,7 @@ struct StageView: View {
             ForEach(script.glyphs.indices, id: \.self) { index in
                 GlyphTrackView(track: script.glyphs[index], pixel: pixel, size: size, mode: mode)
             }
-            EffectLayer(effect: effect, width: script.width, height: script.height, pixel: pixel, mode: mode)
+            EffectLayer(effect: effect, width: script.width, height: script.height, pixel: pixel, mode: mode, length: effectLength)
         }
         .frame(width: size.width, height: size.height, alignment: .topLeading)
         .clipped()
@@ -80,9 +82,10 @@ struct EffectLayer: View {
     let height: Int
     let pixel: CGFloat
     let mode: PlaybackMode
+    var length: Int = Effects.length
 
     var body: some View {
-        let frames = Effects.frames(effect, width: width, height: height)
+        let frames = Effects.frames(effect, width: width, height: height, length: length)
         if !frames.isEmpty {
             let palette = Effects.palette(effect)
             let track = Track(frames)

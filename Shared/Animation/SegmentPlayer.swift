@@ -7,6 +7,8 @@ enum PlaybackMode {
     case liveActivity
     /// Inside the app: a normal `TimelineView` redraws the current frame.
     case inApp
+    /// Battery saver: one still frame, nothing moves, nothing is redrawn.
+    case still
 }
 
 /// Plays `weights.count` segments in a loop at `SegmentPlayer.fps` slots per second.
@@ -26,6 +28,9 @@ struct SegmentPlayer<Content: View>: View {
 
     var body: some View {
         switch mode {
+        case .still:
+            content(0)
+                .frame(width: size.width, height: size.height)
         case .liveActivity:
             FrameWheel(weights: weights, period: period, size: size, content: content)
         case .inApp:

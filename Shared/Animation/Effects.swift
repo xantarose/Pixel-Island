@@ -45,8 +45,10 @@ enum Effects {
         }
     }
 
-    static func frames(_ effect: AtmosphereEffect, width: Int, height: Int) -> [PixelFrame] {
-        guard effect != .none, effect != .auto, width > 0, height > 0 else { return [] }
+    /// `length` = frames per loop. Small places (compact island) use fewer:
+    /// every frame is one more view the system keeps animating.
+    static func frames(_ effect: AtmosphereEffect, width: Int, height: Int, length: Int = Effects.length) -> [PixelFrame] {
+        guard effect != .none, effect != .auto, width > 0, height > 0, length > 0 else { return [] }
         var rng = SplitMix(seed: UInt64(width * 131 + height * 7) &+ UInt64(effect.hashSeed))
         let area = width * height
         let margin = 4

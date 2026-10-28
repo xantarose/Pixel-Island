@@ -19,6 +19,8 @@ enum PairCode {
     private struct Payload: Codable {
         let k: String
         let n: String
+        /// Optional custom colours ("Собери своего котика").
+        let l: CustomLook?
     }
 
     enum ParseError: LocalizedError {
@@ -39,7 +41,7 @@ enum PairCode {
 
     static func make(for pet: PetProfile) -> String {
         let clean = pet.sanitized()
-        let payload = Payload(k: clean.kindID, n: clean.name)
+        let payload = Payload(k: clean.kindID, n: clean.name, l: clean.look)
         guard let data = try? JSONEncoder().encode(payload) else { return prefix }
         return prefix + base64URLEncode(data)
     }
@@ -64,7 +66,7 @@ enum PairCode {
             throw ParseError.damaged
         }
         guard PetCatalog.contains(payload.k) else { throw ParseError.unknownPet }
-        return PetProfile(kindID: payload.k, name: payload.n).sanitized()
+        return PetProfile(kindID: payload.k, name: payload.n, look: payload.l).sanitized()
     }
 
     // MARK: - Internals

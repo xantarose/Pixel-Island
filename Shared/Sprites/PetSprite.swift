@@ -117,11 +117,33 @@ struct PetSprite: Identifiable {
     let palette: [Character: Color]
     private let poses: [PetPose: [PixelFrame]]
 
-    init(_ data: PetSpriteData) {
+    /// `colors` recolours parts (see `CustomLook`); derived shades follow:
+    /// highlight/shadow from the fur, closed eyes from the outline.
+    init(_ data: PetSpriteData, colors: [String: UInt32] = [:]) {
         id = data.id
         name = data.name
         group = data.group
-        palette = data.palette.mapValues { Color(hex: $0) }
+        var raw = data.palette
+        for (role, value) in colors {
+            guard let key = role.first, role.count == 1 else { continue }
+            raw[key] = value & 0xFFFFFF
+        }
+        if let fur = colors["B"], data.palette["H"] != nil {
+            raw["H"] = ColorMath.lighter(fur, 0.25)
+            raw["Q"] = ColorMath.darker(fur, 0.3)
+        }
+        if colors["E"] != nil && colors["F"] == nil {
+            raw["F"] = raw["E"]
+        }
+        if let outline = colors["o"], data.palette["K"] == data.palette["o"] {
+            raw["K"] = outline
+        }
+        // Closed eyes must stay visible on very dark fur.
+        if let fur = raw["B"], let closed = raw["K"],
+           ColorMath.luminance(fur) < 0.3, ColorMath.luminance(closed) < 0.3 {
+            raw["K"] = ColorMath.lighter(fur, 0.45)
+        }
+        palette = raw.mapValues { Color(hex: $0) }
         var parsed: [PetPose: [PixelFrame]] = [:]
         for (key, frames) in data.poses {
             guard let pose = PetPose(rawValue: key), !frames.isEmpty else { continue }
@@ -161,12 +183,21 @@ enum PetCatalog {
     static var count: Int { SpriteCatalog.pets.count }
 
     /// Unknown ids (old versions, tampered pair codes) fall back to the ginger cat.
-    static func pet(_ id: String) -> PetSprite {
-        PetSprite(byID[id] ?? byID[defaultID] ?? SpriteCatalog.pets[0])
+    static func pet(_ id: String, colors: [String: UInt32] = [:]) -> PetSprite {
+        PetSprite(byID[id] ?? byID[defaultID] ?? SpriteCatalog.pets[0], colors: colors)
     }
 
     static func contains(_ id: String) -> Bool {
         byID[id] != nil
+    }
+
+    static func isCat(_ id: String) -> Bool {
+        byID[id]?.group == .cats
+    }
+
+    /// Raw palette of a pet, for the editor's "current colour" swatches.
+    static func palette(_ id: String) -> [Character: UInt32] {
+        (byID[id] ?? byID[defaultID])?.palette ?? [:]
     }
 
     struct Entry: Identifiable, Hashable {

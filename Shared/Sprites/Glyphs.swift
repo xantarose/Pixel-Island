@@ -17,6 +17,20 @@ enum StageGlyph: Hashable {
     case moon
     case paw
     case sakura
+    case petals
+    case cherries
+    case butterfly
+    case crown
+    case fish
+    case note
+    case cloud
+    case rainbow
+    case snowflake
+    case mushroom
+    case tulip
+    case sun
+    case bow
+    case clover
 
     var frame: PixelFrame { Self.frames[self] ?? PixelFrame(rows: []) }
 
@@ -35,6 +49,13 @@ enum StageGlyph: Hashable {
         "K": Color(hex: 0xFFB3CB),
         "k": Color(hex: 0xF07AA3),
         "B": Color(hex: 0xF6F2FA),
+        "v": Color(hex: 0x6CCB5F),
+        "V": Color(hex: 0x3E9A47),
+        "b": Color(hex: 0x7FB8FF),
+        "c": Color(hex: 0xCFE8FF),
+        "O": Color(hex: 0xFF9F45),
+        "u": Color(hex: 0xB89CFF),
+        "Y": Color(hex: 0xFFD45E),
     ]
 
     private static let frames: [StageGlyph: PixelFrame] = [
@@ -91,6 +112,124 @@ enum StageGlyph: Hashable {
             "..WSW..",
             "...W...",
             "...W...",
+        ]),
+        .petals: PixelFrame(rows: [
+            ".K.....",
+            "KK..k..",
+            "...kk..",
+            "......K",
+            "..K..KK",
+            ".KK....",
+            "....k..",
+        ]),
+        .cherries: PixelFrame(rows: [
+            "....VV.",
+            "...V.V.",
+            "..V..V.",
+            ".V...V.",
+            "RR..RR.",
+            "RWR.RWR",
+            "RRR.RRR",
+            ".R...R.",
+        ]),
+        .butterfly: PixelFrame(rows: [
+            "uu...uu",
+            "uuu.uuu",
+            "uKuguKu",
+            ".uuguu.",
+            "uuugukk",
+            "uu.g.uu",
+            ".......",
+        ]),
+        .crown: PixelFrame(rows: [
+            "Y..Y..Y",
+            "YY.Y.YY",
+            "YYYYYYY",
+            "YRYbYRY",
+            "YYYYYYY",
+        ]),
+        .fish: PixelFrame(rows: [
+            "....bb..",
+            "b..bbbb.",
+            "bbbbbWbb",
+            "bbbbbbbb",
+            "b..bbbb.",
+            "....bb..",
+        ]),
+        .note: PixelFrame(rows: [
+            "...VVVV",
+            "...V..V",
+            "...V..V",
+            "...V..V",
+            ".VVV.VV",
+            "VVVVVVV",
+            ".VV..VV",
+        ]),
+        .cloud: PixelFrame(rows: [
+            "..WW...",
+            ".WWWW..",
+            ".WWWWWW",
+            "WWWWWWW",
+            ".cccccc",
+        ]),
+        .rainbow: PixelFrame(rows: [
+            "..RRR..",
+            ".ROOOR.",
+            "ROYYYOR",
+            "OYv.vYO",
+            "Yv...vY",
+            "v.....v",
+        ]),
+        .snowflake: PixelFrame(rows: [
+            "...c...",
+            ".c.c.c.",
+            "..ccc..",
+            "ccccccc",
+            "..ccc..",
+            ".c.c.c.",
+            "...c...",
+        ]),
+        .mushroom: PixelFrame(rows: [
+            "..RRR..",
+            ".RWRRR.",
+            "RRRRWRR",
+            "RRRRRRR",
+            "..WWW..",
+            "..WWW..",
+        ]),
+        .tulip: PixelFrame(rows: [
+            ".K.K.K.",
+            ".KKKKK.",
+            ".KKKKK.",
+            "..KKK..",
+            "...v...",
+            ".v.v.v.",
+            "..vvv..",
+        ]),
+        .sun: PixelFrame(rows: [
+            "...Y...",
+            ".Y...Y.",
+            "..YYY..",
+            "YYYYYYY",
+            "..YYY..",
+            ".Y...Y.",
+            "...Y...",
+        ]),
+        .bow: PixelFrame(rows: [
+            "KK...KK",
+            "KKK.KKK",
+            "KKKkKKK",
+            "KKK.KKK",
+            "KK...KK",
+        ]),
+        .clover: PixelFrame(rows: [
+            ".vv.vv.",
+            "vvvvvvv",
+            ".vvvvv.",
+            "vvvvvvv",
+            ".vv.vv.",
+            "...V...",
+            "..V....",
         ]),
         .redHeart: PixelFrame(rows: [
             ".rr.rr.",
@@ -185,7 +324,7 @@ struct BadgeView: View {
         }
     }
 
-    private var glyph: StageGlyph {
+    var glyph: StageGlyph {
         switch badge {
         case .none, .heart, .heartbeat: return .heart
         case .redHeart: return .redHeart
@@ -196,6 +335,20 @@ struct BadgeView: View {
         case .moon: return .moon
         case .paw: return .paw
         case .sakura: return .sakura
+        case .petals: return .petals
+        case .cherries: return .cherries
+        case .butterfly: return .butterfly
+        case .crown: return .crown
+        case .fish: return .fish
+        case .note: return .note
+        case .cloud: return .cloud
+        case .rainbow: return .rainbow
+        case .snowflake: return .snowflake
+        case .mushroom: return .mushroom
+        case .tulip: return .tulip
+        case .sun: return .sun
+        case .bow: return .bow
+        case .clover: return .clover
         }
     }
 }

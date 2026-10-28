@@ -5,18 +5,30 @@ import Foundation
 struct PetProfile: Codable, Hashable {
     var kindID: String
     var name: String
+    /// Your own colours on top of a base cat. `nil` = the breed as drawn.
+    var look: CustomLook?
 
-    var sprite: PetSprite { PetCatalog.pet(kindID) }
+    var sprite: PetSprite {
+        if let look { return PetCatalog.pet(look.baseID, colors: look.colors) }
+        return PetCatalog.pet(kindID)
+    }
+
+    /// What the picker should highlight.
+    var displayID: String { look?.baseID ?? kindID }
 
     /// Never trust stored or received data: unknown kinds fall back to the
     /// default pet, names are cleaned and an empty name becomes the breed name.
     func sanitized() -> PetProfile {
         let kind = PetCatalog.contains(kindID) ? kindID : PetCatalog.defaultID
         let clean = NameSanitizer.clean(name)
-        return PetProfile(kindID: kind, name: clean.isEmpty ? PetCatalog.pet(kind).name : clean)
+        return PetProfile(
+            kindID: kind,
+            name: clean.isEmpty ? PetCatalog.pet(kind).name : clean,
+            look: look?.sanitized()
+        )
     }
 
-    static let defaultMine = PetProfile(kindID: PetCatalog.defaultID, name: "Рыжик")
+    static let defaultMine = PetProfile(kindID: PetCatalog.defaultID, name: "Рыжик", look: nil)
 }
 
 /// A focus timer ("pomodoro"). The pet naps while you work.
@@ -48,6 +60,8 @@ struct IslandState: Codable, Hashable {
     var badge: IslandBadge = .heart
     var keyline: KeylineColor = .pink
     var effectScope: EffectScope = .pet
+    /// Still pets: nothing animates, the island costs no extra battery.
+    var batterySaver: Bool = false
 
     static let initial = IslandState(
         me: .defaultMine,
@@ -101,6 +115,7 @@ struct IslandState: Codable, Hashable {
         badge = (try? c.decodeIfPresent(IslandBadge.self, forKey: .badge)) ?? .heart
         keyline = (try? c.decodeIfPresent(KeylineColor.self, forKey: .keyline)) ?? .pink
         effectScope = (try? c.decodeIfPresent(EffectScope.self, forKey: .effectScope)) ?? .pet
+        batterySaver = (try? c.decodeIfPresent(Bool.self, forKey: .batterySaver)) ?? false
     }
 
     func sanitized() -> IslandState {
@@ -149,6 +164,14 @@ struct IslandState: Codable, Hashable {
             return true
         }
         return days % 100 == 0 || days == 365
+    }
+}
+
+extension IslandState {
+    /// How the Live Activity should animate right now. Low Power Mode or the
+    /// app's battery saver freeze the pets on one frame.
+    var liveActivityMode: PlaybackMode {
+        batterySaver || ProcessInfo.processInfo.isLowPowerModeEnabled ? .still : .liveActivity
     }
 }
 

@@ -220,3 +220,48 @@ struct FocusTimerSheet: View {
         }
     }
 }
+
+/// Badges shown as the real pixel pictures. The first tile removes the badge.
+struct BadgePicker: View {
+    let selection: IslandBadge
+    let onSelect: (IslandBadge) -> Void
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 64), spacing: 8)], spacing: 8) {
+            ForEach(IslandBadge.allCases, id: \.self) { badge in
+                let isSelected = badge == selection
+                Button {
+                    onSelect(badge)
+                } label: {
+                    VStack(spacing: 4) {
+                        Group {
+                            if badge == .none {
+                                Image(systemName: "nosign")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundStyle(Theme.muted)
+                            } else {
+                                BadgeView(badge: badge, pixel: 3, mode: isSelected ? .inApp : .still)
+                            }
+                        }
+                        .frame(height: 30)
+                        Text(badge.title)
+                            .font(Theme.roundedFont(11, weight: .medium))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .foregroundStyle(isSelected ? Theme.peach : Theme.cream)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 64)
+                    .background(Color.black, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .strokeBorder(isSelected ? Theme.peach : Theme.cardBorder, lineWidth: isSelected ? 2.5 : 1)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(badge.title)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+                .sensoryFeedback(.selection, trigger: isSelected)
+            }
+        }
+    }
+}
