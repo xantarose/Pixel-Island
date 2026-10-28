@@ -6,6 +6,8 @@ enum IslandStorage {
     private static let stateKey = "pixelisland.state.v1"
     private static let wantsRunningKey = "pixelisland.wantsRunning"
     private static let startedAtKey = "pixelisland.startedAt"
+    private static let lastButtonKey = "pixelisland.lastButton"
+    private static let lastButtonDateKey = "pixelisland.lastButtonDate"
 
     static func load(from defaults: UserDefaults = .standard) -> IslandState {
         guard
@@ -32,6 +34,20 @@ enum IslandStorage {
     static var wantsRunning: Bool {
         get { UserDefaults.standard.bool(forKey: wantsRunningKey) }
         set { UserDefaults.standard.set(newValue, forKey: wantsRunningKey) }
+    }
+
+    /// Diagnostics: the last island button that reached the app process.
+    static func noteButton(_ name: String) {
+        UserDefaults.standard.set(name, forKey: lastButtonKey)
+        UserDefaults.standard.set(Date.now, forKey: lastButtonDateKey)
+    }
+
+    static var lastButton: (name: String, date: Date)? {
+        guard
+            let name = UserDefaults.standard.string(forKey: lastButtonKey),
+            let date = UserDefaults.standard.object(forKey: lastButtonDateKey) as? Date
+        else { return nil }
+        return (name, date)
     }
 
     static var startedAt: Date? {

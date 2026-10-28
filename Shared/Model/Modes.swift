@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// What your pet does when it is alone (or in the small island).
 enum SoloPose: String, Codable, CaseIterable, Hashable {
@@ -148,7 +149,7 @@ enum IslandWidth: String, Codable, CaseIterable, Hashable {
 /// Little picture on the right side of the island (when there is no
 /// partner pet or timer to show there).
 enum IslandBadge: String, Codable, CaseIterable, Hashable {
-    case none, heart, heartbeat, redHeart, whiteHeart, twoHearts, sparkle, star, moon, paw, sakura
+    case none, heart, heartbeat, redHeart, whiteHeart, twoHearts, sparkle, star, moon, paw, sakura, sakuraTree
     case petals, cherries, butterfly, crown, fish, note, cloud, rainbow, snowflake, mushroom, tulip, sun, bow, clover
 
     var title: String {
@@ -164,6 +165,7 @@ enum IslandBadge: String, Codable, CaseIterable, Hashable {
         case .moon: return "Луна"
         case .paw: return "Лапка"
         case .sakura: return "Сакура"
+        case .sakuraTree: return "Дерево сакуры"
         case .petals: return "Лепестки"
         case .cherries: return "Вишенки"
         case .butterfly: return "Бабочка"
@@ -194,6 +196,7 @@ enum IslandBadge: String, Codable, CaseIterable, Hashable {
         case .moon: return "🌙"
         case .paw: return "🐾"
         case .sakura: return "🌸"
+        case .sakuraTree: return "🌳"
         case .petals: return "🌸"
         case .cherries: return "🍒"
         case .butterfly: return "🦋"
@@ -212,12 +215,14 @@ enum IslandBadge: String, Codable, CaseIterable, Hashable {
     }
 }
 
-/// Colour of the thin outline iOS draws around the island.
+/// Colour of the thin outline iOS draws around the island. iOS decides
+/// where it is visible (mostly over dark content); `off` asks for none.
 enum KeylineColor: String, Codable, CaseIterable, Hashable {
-    case pink, red, peach, gold, mint, sky, lavender, white
+    case off, pink, red, peach, gold, mint, sky, lavender, white
 
     var title: String {
         switch self {
+        case .off: return "Без обводки"
         case .pink: return "Розовая"
         case .red: return "Красная"
         case .peach: return "Персик"
@@ -229,8 +234,13 @@ enum KeylineColor: String, Codable, CaseIterable, Hashable {
         }
     }
 
+    var color: Color? {
+        self == .off ? nil : Color(hex: hex)
+    }
+
     var hex: UInt32 {
         switch self {
+        case .off: return 0x000000
         case .pink: return 0xFF7FA8
         case .red: return 0xFF3B5C
         case .peach: return 0xFF9F7A

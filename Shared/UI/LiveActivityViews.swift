@@ -248,19 +248,19 @@ struct ExpandedBottomView: View {
             }
 
             HStack(spacing: 6) {
-                Button(intent: PetIntent()) {
+                IslandButton(action: .pet, intent: PetIntent(), opensApp: state.buttonsOpenApp) {
                     IslandChip(title: "Погладить", systemImage: "heart.fill", tint: Theme.pink)
                 }
                 if state.focus != nil {
-                    Button(intent: StopFocusIntent()) {
+                    IslandButton(action: .stopFocus, intent: StopFocusIntent(), opensApp: state.buttonsOpenApp) {
                         IslandChip(title: "Стоп", systemImage: "stop.fill", tint: Theme.mint)
                     }
                 } else {
-                    Button(intent: NextActivityIntent()) {
+                    IslandButton(action: .next, intent: NextActivityIntent(), opensApp: state.buttonsOpenApp) {
                         IslandChip(title: "Дальше", systemImage: "sparkles", tint: Theme.mint)
                     }
                 }
-                Button(intent: ToggleSleepIntent()) {
+                IslandButton(action: .sleep, intent: ToggleSleepIntent(), opensApp: state.buttonsOpenApp) {
                     IslandChip(
                         title: state.isSleeping ? "Будить" : "Спать",
                         systemImage: state.isSleeping ? "sun.max.fill" : "moon.fill",
@@ -271,6 +271,23 @@ struct ExpandedBottomView: View {
             .buttonStyle(.plain)
         }
         .padding(.horizontal, 4)
+    }
+}
+
+/// A button in the expanded island: a silent App Intent, or a link that
+/// opens the app when the user switched to that fallback.
+struct IslandButton<Intent: LiveActivityIntent, Content: View>: View {
+    let action: IslandAction
+    let intent: Intent
+    let opensApp: Bool
+    @ViewBuilder let label: Content
+
+    var body: some View {
+        if opensApp {
+            Link(destination: action.url) { label }
+        } else {
+            Button(intent: intent) { label }
+        }
     }
 }
 

@@ -17,6 +17,11 @@ enum StageGlyph: Hashable {
     case moon
     case paw
     case sakura
+    /// Blossoming tree with petals falling, 4 frames.
+    case sakuraTree0
+    case sakuraTree1
+    case sakuraTree2
+    case sakuraTree3
     case petals
     case cherries
     case butterfly
@@ -56,7 +61,13 @@ enum StageGlyph: Hashable {
         "O": Color(hex: 0xFF9F45),
         "u": Color(hex: 0xB89CFF),
         "A": Color(hex: 0xFFD45E),
+        "L": Color(hex: 0xFFE1EC),
+        "D": Color(hex: 0xD9608C),
+        "n": Color(hex: 0x7A4A34),
+        "N": Color(hex: 0x4A2A1E),
     ]
+
+    static let sakuraTree: [StageGlyph] = [.sakuraTree0, .sakuraTree1, .sakuraTree2, .sakuraTree3]
 
     private static let frames: [StageGlyph: PixelFrame] = [
         .heart: PixelFrame(rows: [
@@ -231,6 +242,78 @@ enum StageGlyph: Hashable {
             "...V...",
             "..V....",
         ]),
+        .sakuraTree0: PixelFrame(rows: [
+            "......LLK.......",
+            "...LKKKKkKK.....",
+            "..LKKkKKKKKKk...",
+            ".KKKKKKkKKLKKK..",
+            "LKkKKLKKKKkKKKk.",
+            "KKKKKkKKKkKKKKK.",
+            ".kKKKKKKnKKKkK..",
+            "..KKkKnKnKKKk...",
+            "....kKNnNnKk....",
+            "......NnN...K...",
+            ".......nN.....K.",
+            ".......nN.......",
+            "..L....nN.......",
+            "......NnnNL.....",
+            ".....NnnnnN.....",
+            "................",
+        ]),
+        .sakuraTree1: PixelFrame(rows: [
+            "......LLK.......",
+            "...LKKKKkKK.....",
+            "..LKKkKKKKKKk...",
+            ".KKKKKKkKKLKKK..",
+            "LKkKKLKKKKkKKKk.",
+            "KKKKKkKKKkKKKKK.",
+            ".kKKKKKKnKKKkK..",
+            "..KKkKnKnKKKk...",
+            "....kKNnNnKk....",
+            "......NnN.......",
+            ".......nN.......",
+            ".......nN....K..",
+            ".......nN......K",
+            "......NnnN......",
+            "...L.NnnnnN.....",
+            "...........L....",
+        ]),
+        .sakuraTree2: PixelFrame(rows: [
+            "......LLK.......",
+            "...LKKKKkKK.....",
+            "..LKKkKKKKKKk...",
+            ".KKKKKKkKKLKKK..",
+            "LKkKKLKKKKkKKKk.",
+            "KKKKKkKKKkKKKKK.",
+            ".kKKKKKKnKKKkK..",
+            "..KKkKnKnKKKk...",
+            "....kKNnNnKk....",
+            ".L....NnN.......",
+            "....L..nN.......",
+            ".......nN.......",
+            ".......nN.......",
+            "......NnnN..K...",
+            ".....NnnnnN...K.",
+            "................",
+        ]),
+        .sakuraTree3: PixelFrame(rows: [
+            "......LLK.......",
+            "...LKKKKkKK.....",
+            "..LKKkKKKKKKk...",
+            ".KKKKKKkKKLKKK..",
+            "LKkKKLKKKKkKKKk.",
+            "KKKKKkKKKkKKKKK.",
+            ".kKKKKKKnKKKkK..",
+            "..KKkKnKnKKKk...",
+            "....kKNnNnKk.K..",
+            "......NnN.......",
+            ".......nN.......",
+            "..L....nN.......",
+            ".....L.nN.......",
+            "......NnnN......",
+            ".....NnnnnN.....",
+            ".............K..",
+        ]),
         .redHeart: PixelFrame(rows: [
             ".rr.rr.",
             "rRRrRRr",
@@ -309,6 +392,17 @@ struct BadgeView: View {
         switch badge {
         case .none:
             EmptyView()
+        case .sakuraTree:
+            // The tree is 16 px tall: draw it at 2/3 scale to fit the island.
+            let treePixel = pixel * 2 / 3
+            let size = CGSize(width: 16 * treePixel, height: 16 * treePixel)
+            SegmentPlayer(weights: [3, 3, 3, 3], size: size, mode: mode) { index in
+                PixelFrameView(
+                    frame: StageGlyph.sakuraTree[index % StageGlyph.sakuraTree.count].frame,
+                    palette: StageGlyph.palette,
+                    pixel: treePixel
+                )
+            }
         case .heartbeat:
             let size = CGSize(width: 7 * pixel, height: 7 * pixel)
             SegmentPlayer(weights: [4, 2], size: size, mode: mode) { index in
@@ -335,6 +429,7 @@ struct BadgeView: View {
         case .moon: return .moon
         case .paw: return .paw
         case .sakura: return .sakura
+        case .sakuraTree: return .sakuraTree0
         case .petals: return .petals
         case .cherries: return .cherries
         case .butterfly: return .butterfly

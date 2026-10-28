@@ -153,9 +153,19 @@ struct KeylinePicker: View {
                 Button {
                     onSelect(color)
                 } label: {
-                    Circle()
-                        .fill(Color(hex: color.hex))
-                        .frame(width: 34, height: 34)
+                    Group {
+                        if color == .off {
+                            Image(systemName: "nosign")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(Theme.muted)
+                                .frame(width: 34, height: 34)
+                                .background(Color.black, in: Circle())
+                        } else {
+                            Circle()
+                                .fill(Color(hex: color.hex))
+                                .frame(width: 34, height: 34)
+                        }
+                    }
                         .overlay {
                             Circle()
                                 .strokeBorder(Theme.cream, lineWidth: isSelected ? 3 : 0)

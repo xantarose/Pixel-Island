@@ -174,6 +174,13 @@ enum Scripts {
             right = Actor(x: meetRight + 1, y: y, facingRight: false)
             left.hold(.sit, [(0, 10), (2, 3), (0, 6), (1, 1), (0, 4)])
             right.hold(.sit, [(0, 5), (1, 1), (0, 8), (2, 3), (0, 7)])
+            // A blossoming tree behind the pair (left of them), petals falling.
+            var tree = GlyphTrackBuilder()
+            let treeX = max(meetLeft - 1 - sprite, 0)
+            for i in 0..<8 {
+                tree.show(StageGlyph.sakuraTree[i % 4], x: treeX, y: height - sprite, 3)
+            }
+            glyphs.append(tree.slots)
 
         case .chase:
             // A run: 3 px per slot. The strip is padded so the lap divides evenly.

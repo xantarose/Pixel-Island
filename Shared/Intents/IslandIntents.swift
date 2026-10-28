@@ -16,7 +16,7 @@ struct PetIntent: LiveActivityIntent {
     static let isDiscoverable = false
 
     func perform() async throws -> some IntentResult {
-        await IslandController.flashHearts()
+        await IslandAction.pet.perform(viaIntent: true)
         return .result()
     }
 }
@@ -27,7 +27,7 @@ struct ToggleSleepIntent: LiveActivityIntent {
     static let description = IntentDescription("Питомцы на островке засыпают или просыпаются.")
 
     func perform() async throws -> some IntentResult {
-        await IslandController.modify { $0.isSleeping.toggle() }
+        await IslandAction.sleep.perform(viaIntent: true)
         return .result()
     }
 }
@@ -38,16 +38,7 @@ struct NextActivityIntent: LiveActivityIntent {
     static let description = IntentDescription("Питомцы на островке переключаются на другое занятие.")
 
     func perform() async throws -> some IntentResult {
-        await IslandController.modify { state in
-            if state.partner != nil {
-                state.activity = state.activity.next
-            } else {
-                let all = SoloPose.allCases
-                let index = all.firstIndex(of: state.pose) ?? 0
-                state.pose = all[(index + 1) % all.count]
-            }
-            state.isSleeping = false
-        }
+        await IslandAction.next.perform(viaIntent: true)
         return .result()
     }
 }
@@ -59,12 +50,18 @@ struct StopFocusIntent: LiveActivityIntent {
     static let isDiscoverable = false
 
     func perform() async throws -> some IntentResult {
-        await IslandController.modify { $0.focus = nil }
-        #if !WIDGET_EXTENSION
-        FocusNotifications.cancel()
-        #endif
+        await IslandAction.stopFocus.perform(viaIntent: true)
         return .result()
     }
+}
+
+/// Referenced from the app so the optimizer can never strip the intent types
+/// out of the app binary (iOS then can't find them and buttons do nothing).
+enum IslandIntents {
+    static let all: [any AppIntent.Type] = [
+        PetIntent.self, ToggleSleepIntent.self, NextActivityIntent.self,
+        StopFocusIntent.self, StartIslandIntent.self,
+    ]
 }
 
 /// Starts (or restarts) the pet on the island. Handy in a Shortcuts

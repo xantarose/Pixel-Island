@@ -18,7 +18,7 @@ struct IslandPreview: View {
             .frame(height: 37)
             .background(Color.black, in: Capsule())
             .overlay {
-                Capsule().strokeBorder(Color(hex: state.keyline.hex).opacity(0.7), lineWidth: 1)
+                Capsule().strokeBorder((state.keyline.color ?? .clear).opacity(0.7), lineWidth: 1)
             }
             .fixedSize()
 

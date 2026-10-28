@@ -5,10 +5,16 @@ import SwiftUI
 struct PixelIslandApp: App {
     @State private var model = IslandModel()
 
+    init() {
+        // Keep every island button's intent type alive in the app binary.
+        _ = IslandIntents.all
+    }
+
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            RootView()
                 .environment(model)
+                .onOpenURL { model.handle($0) }
                 .preferredColorScheme(.dark)
                 .tint(Theme.peach)
         }

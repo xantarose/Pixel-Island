@@ -140,6 +140,17 @@ final class IslandModel {
         }
     }
 
+    /// `pixelisland://pet` etc. from island buttons in "open the app" mode.
+    func handle(_ url: URL) {
+        guard let action = IslandAction(url: url) else { return }
+        Task {
+            await action.perform()
+            if let incoming = IslandController.current?.content.state {
+                adopt(incoming)
+            }
+        }
+    }
+
     // MARK: - Partner
 
     func importPartner(from text: String) -> Bool {

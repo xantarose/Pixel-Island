@@ -62,6 +62,9 @@ struct IslandState: Codable, Hashable {
     var effectScope: EffectScope = .pet
     /// Still pets: nothing animates, the island costs no extra battery.
     var batterySaver: Bool = false
+    /// Island buttons open the app instead of running silently. A fallback
+    /// for builds where iOS does not deliver the silent button taps.
+    var buttonsOpenApp: Bool = false
 
     static let initial = IslandState(
         me: .defaultMine,
@@ -116,6 +119,7 @@ struct IslandState: Codable, Hashable {
         keyline = (try? c.decodeIfPresent(KeylineColor.self, forKey: .keyline)) ?? .pink
         effectScope = (try? c.decodeIfPresent(EffectScope.self, forKey: .effectScope)) ?? .pet
         batterySaver = (try? c.decodeIfPresent(Bool.self, forKey: .batterySaver)) ?? false
+        buttonsOpenApp = (try? c.decodeIfPresent(Bool.self, forKey: .buttonsOpenApp)) ?? false
     }
 
     func sanitized() -> IslandState {

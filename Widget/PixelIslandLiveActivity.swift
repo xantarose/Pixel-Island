@@ -34,7 +34,7 @@ struct PixelIslandLiveActivity: Widget {
             } minimal: {
                 MinimalIslandView(state: context.state, mode: context.state.liveActivityMode)
             }
-            .keylineTint(Color(hex: context.state.keyline.hex))
+            .keylineTint(context.state.keyline.color)
         }
     }
 }
