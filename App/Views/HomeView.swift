@@ -48,6 +48,10 @@ struct HomeView: View {
         .sheet(isPresented: $showsPairSheet) {
             PairSheet()
         }
+        .task {
+            // onChange below doesn't fire for the initial phase of a cold launch.
+            await model.appBecameActive()
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 Task { await model.appBecameActive() }

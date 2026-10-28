@@ -12,10 +12,12 @@ final class IslandModel {
     var message: String?
 
     @ObservationIgnored private var syncTask: Task<Void, Never>?
+    @ObservationIgnored private var watchTask: Task<Void, Never>?
 
     init() {
         state = IslandStorage.load()
         isRunning = IslandController.current != nil
+        watchActivity()
     }
 
     // MARK: - Editing
@@ -61,6 +63,7 @@ final class IslandModel {
             try await IslandController.start(state)
             isRunning = true
             message = nil
+            watchActivity()
         } catch {
             message = error.localizedDescription
         }
@@ -80,6 +83,33 @@ final class IslandModel {
         }
         await IslandController.reviveIfNeeded(state)
         isRunning = IslandController.current != nil
+        watchActivity()
+    }
+
+    /// Island buttons (sleep, next activity, stop focus) run in the background
+    /// and change the activity directly. While the app is open, pick those
+    /// changes up so the next edit here doesn't overwrite them. Only the
+    /// fields those buttons touch are taken over: names being typed stay.
+    private func watchActivity() {
+        watchTask?.cancel()
+        guard let activity = IslandController.current else { return }
+        watchTask = Task { [weak self] in
+            for await content in activity.contentUpdates {
+                guard let self, !Task.isCancelled else { return }
+                let incoming = content.state
+                var merged = self.state
+                merged.isSleeping = incoming.isSleeping
+                merged.activity = incoming.activity
+                merged.pose = incoming.pose
+                if incoming.focus == nil {
+                    merged.focus = nil
+                }
+                if merged != self.state {
+                    self.state = merged
+                    IslandStorage.save(merged)
+                }
+            }
+        }
     }
 
     private func scheduleSync() {
