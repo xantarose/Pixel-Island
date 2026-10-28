@@ -89,7 +89,7 @@ enum Scripts {
         case .nap:
             let sleepPose: PetPose = curled ? .curl : .sleep
             a.hold(sleepPose, [(0, 9), (1, 9)])
-            zTracks = zzz(overX: center, y: y, flipped: false)
+            zTracks = zzz(overX: center, y: y, flipped: false, stageWidth: width)
         }
 
         var script = StageScript(width: width, height: height, actors: [(.me, a.slots)], glyphs: zTracks)
@@ -166,8 +166,8 @@ enum Scripts {
             right = Actor(x: meetRight, y: y, facingRight: false)
             left.hold(.curl, [(0, 9), (1, 9)])
             right.hold(.curl, [(1, 9), (0, 9)])
-            glyphs += zzz(overX: meetLeft, y: y, flipped: false)
-            glyphs += zzz(overX: meetRight, y: y, flipped: true, phase: 9)
+            glyphs += zzz(overX: meetLeft, y: y, flipped: false, stageWidth: width)
+            glyphs += zzz(overX: meetRight, y: y, flipped: true, stageWidth: width, phase: 9)
 
         case .sakura:
             left = Actor(x: meetLeft - 1, y: y)
@@ -229,7 +229,7 @@ enum Scripts {
             width: width,
             height: height,
             actors: [(.me, left.slots), (.partner, right.slots)],
-            glyphs: zzz(overX: meetLeft, y: y, flipped: false)
+            glyphs: zzz(overX: meetLeft, y: y, flipped: false, stageWidth: width)
         )
     }
 
@@ -240,11 +240,14 @@ enum Scripts {
 
     /// 💤 above a sleeping pet's head: nothing, small "z", then "z Z".
     /// Returned as a list of glyph tracks so callers can just `+=` them.
-    static func zzz(overX x: Int, y: Int, flipped: Bool, phase: Int = 0) -> [[GlyphFrame]] {
+    static func zzz(overX x: Int, y: Int, flipped: Bool, stageWidth: Int, phase: Int = 0) -> [[GlyphFrame]] {
         // Head of a sleeping/curled cat spans columns 9...14, ears on row 8:
-        // the 9x9 glyph sits between and above the ears.
+        // the 9x9 glyph sits between and above the ears. On a stage too
+        // narrow for that (narrow island) it floats above the back instead.
         let glyphWidth = StageGlyph.zzzTwo.frame.width
-        let gx = flipped ? x + sprite - 10 - glyphWidth : x + 10
+        let fitsAboveHead = x + 10 + glyphWidth <= stageWidth
+        let offset = fitsAboveHead ? 10 : 1
+        let gx = flipped ? x + sprite - offset - glyphWidth : x + offset
         var frames: [GlyphFrame] = Array(repeating: .hidden, count: 4)
         frames += Array(repeating: GlyphFrame(glyph: .zzzOne, x: gx, y: y), count: 5)
         frames += Array(repeating: GlyphFrame(glyph: .zzzTwo, x: gx, y: y), count: sleepLoop - 9)
