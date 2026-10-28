@@ -47,7 +47,7 @@ enum Scripts {
         let strollEnd = min(range, 32)
         let stride = width > 40 ? 2 : 1
         var a = Actor(x: center, y: y)
-        var z = GlyphTrackBuilder()
+        var zTracks: [[GlyphFrame]] = []
 
         switch pose {
         case .auto:
@@ -81,11 +81,11 @@ enum Scripts {
             a.hold(.play, [(0, 8), (1, 2), (0, 4), (1, 2), (0, 2), (1, 2)])
         case .nap:
             let sleepPose: PetPose = curled ? .curl : .sleep
-            a.hold(sleepPose, [(0, 8), (1, 8)])
-            z = zzz(overX: center, y: y, flipped: false, phase: 0, length: 16)
+            a.hold(sleepPose, [(0, 9), (1, 9)])
+            zTracks = zzz(overX: center, y: y, flipped: false)
         }
 
-        var script = StageScript(width: width, height: height, actors: [(.me, a.slots)], glyphs: [z.slots])
+        var script = StageScript(width: width, height: height, actors: [(.me, a.slots)], glyphs: zTracks)
         if mirrored {
             script = mirror(script, role: .partner)
         }
@@ -157,10 +157,10 @@ enum Scripts {
         case .nap:
             left = Actor(x: meetLeft, y: y)
             right = Actor(x: meetRight, y: y, facingRight: false)
-            left.hold(.curl, [(0, 8), (1, 8)])
-            right.hold(.curl, [(1, 8), (0, 8)])
-            glyphs.append(zzz(overX: meetLeft, y: y, flipped: false, phase: 0, length: 16).slots)
-            glyphs.append(zzz(overX: meetRight, y: y, flipped: true, phase: 8, length: 16).slots)
+            left.hold(.curl, [(0, 9), (1, 9)])
+            right.hold(.curl, [(1, 9), (0, 9)])
+            glyphs += zzz(overX: meetLeft, y: y, flipped: false)
+            glyphs += zzz(overX: meetRight, y: y, flipped: true, phase: 9)
 
         case .sakura:
             left = Actor(x: meetLeft - 1, y: y)
@@ -216,34 +216,33 @@ enum Scripts {
         let meetLeft = max((width - 30) / 2, 0)
         var left = Actor(x: meetLeft, y: y)
         var right = Actor(x: meetLeft + 15, y: y, facingRight: false)
-        left.hold(.sleep, [(0, 8), (1, 8)])
-        right.hold(.sit, [(0, 9), (1, 1), (0, 6)])
-        let z = zzz(overX: meetLeft, y: y, flipped: false, phase: 0, length: 16)
+        left.hold(.sleep, [(0, 9), (1, 9)])
+        right.hold(.sit, [(0, 10), (1, 1), (0, 7)])
         return StageScript(
             width: width,
             height: height,
             actors: [(.me, left.slots), (.partner, right.slots)],
-            glyphs: [z.slots]
+            glyphs: zzz(overX: meetLeft, y: y, flipped: false)
         )
     }
 
     // MARK: - Helpers
 
-    /// "z" then "Z" floating above a sleeping pet's head.
-    static func zzz(overX x: Int, y: Int, flipped: Bool, phase: Int, length: Int) -> GlyphTrackBuilder {
-        // Head of a sleeping/curled cat spans columns 9...14, ears start on row 8.
-        let small = flipped ? x + sprite - 10 - 3 : x + 10
-        let big = flipped ? x + sprite - 12 - 4 : x + 12
-        var frames: [GlyphFrame] = []
-        frames += Array(repeating: GlyphFrame(glyph: .zSmall, x: small, y: y + 4), count: 6)
-        frames += Array(repeating: GlyphFrame(glyph: .zBig, x: big, y: y + 1), count: 6)
-        frames += Array(repeating: .hidden, count: max(length - 12, 0))
-        let shift = ((phase % frames.count) + frames.count) % frames.count
-        var track = GlyphTrackBuilder()
-        for frame in frames[shift...] + frames[..<shift] {
-            track.append(frame)
-        }
-        return track
+    /// Slots in one sleep loop: breathing in and out, 💤 appearing.
+    static let sleepLoop = 18
+
+    /// 💤 above a sleeping pet's head: nothing, small "z", then "z Z".
+    /// Returned as a list of glyph tracks so callers can just `+=` them.
+    static func zzz(overX x: Int, y: Int, flipped: Bool, phase: Int = 0) -> [[GlyphFrame]] {
+        // Head of a sleeping/curled cat spans columns 9...14, ears on row 8:
+        // the 9x9 glyph sits between and above the ears.
+        let glyphWidth = StageGlyph.zzzTwo.frame.width
+        let gx = flipped ? x + sprite - 10 - glyphWidth : x + 10
+        var frames: [GlyphFrame] = Array(repeating: .hidden, count: 4)
+        frames += Array(repeating: GlyphFrame(glyph: .zzzOne, x: gx, y: y), count: 5)
+        frames += Array(repeating: GlyphFrame(glyph: .zzzTwo, x: gx, y: y), count: sleepLoop - 9)
+        let shift = ((phase % sleepLoop) + sleepLoop) % sleepLoop
+        return [Array(frames[shift...] + frames[..<shift])]
     }
 
     /// Mirror a script left-right (used for the partner's side of the island).

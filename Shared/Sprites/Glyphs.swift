@@ -4,8 +4,9 @@ import SwiftUI
 enum StageGlyph: Hashable {
     case heart
     case smallHeart
-    case zSmall
-    case zBig
+    /// 💤 drawn in two stages: the small "z" alone, then with a bigger "Z".
+    case zzzOne
+    case zzzTwo
     case yarn
     case sparkle
 
@@ -38,16 +39,27 @@ enum StageGlyph: Hashable {
             ".PPP.",
             "..P..",
         ]),
-        .zSmall: PixelFrame(rows: [
-            "ZZZ",
-            ".Z.",
-            "ZZZ",
+        .zzzOne: PixelFrame(rows: [
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            ".........",
+            "ZZZZ.....",
+            "..Z......",
+            ".Z.......",
+            "ZZZZ.....",
         ]),
-        .zBig: PixelFrame(rows: [
-            "ZZZZ",
-            "..Z.",
-            ".Z..",
-            "ZZZZ",
+        .zzzTwo: PixelFrame(rows: [
+            "....ZZZZZ",
+            ".......Z.",
+            "......Z..",
+            ".....Z...",
+            "....ZZZZZ",
+            "ZZZZ.....",
+            "..Z......",
+            ".Z.......",
+            "ZZZZ.....",
         ]),
         .yarn: PixelFrame(rows: [
             ".YYY.",
