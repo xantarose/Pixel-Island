@@ -199,7 +199,10 @@ private extension IslandState {
             copy.partner?.kindID = PetCatalog.defaultID
         }
         copy.me.look = copy.me.look?.sanitized()
-        copy.partner?.look = copy.partner?.look?.sanitized()
+        if var partner = copy.partner {
+            partner.look = partner.look?.sanitized()
+            copy.partner = partner
+        }
         return copy
     }
 }

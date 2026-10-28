@@ -55,7 +55,7 @@ enum StageGlyph: Hashable {
         "c": Color(hex: 0xCFE8FF),
         "O": Color(hex: 0xFF9F45),
         "u": Color(hex: 0xB89CFF),
-        "Y": Color(hex: 0xFFD45E),
+        "A": Color(hex: 0xFFD45E),
     ]
 
     private static let frames: [StageGlyph: PixelFrame] = [
@@ -142,11 +142,11 @@ enum StageGlyph: Hashable {
             ".......",
         ]),
         .crown: PixelFrame(rows: [
-            "Y..Y..Y",
-            "YY.Y.YY",
-            "YYYYYYY",
-            "YRYbYRY",
-            "YYYYYYY",
+            "A..A..A",
+            "AA.A.AA",
+            "AAAAAAA",
+            "ARAbARA",
+            "AAAAAAA",
         ]),
         .fish: PixelFrame(rows: [
             "....bb..",
@@ -175,9 +175,9 @@ enum StageGlyph: Hashable {
         .rainbow: PixelFrame(rows: [
             "..RRR..",
             ".ROOOR.",
-            "ROYYYOR",
-            "OYv.vYO",
-            "Yv...vY",
+            "ROAAAOR",
+            "OAv.vAO",
+            "Av...vA",
             "v.....v",
         ]),
         .snowflake: PixelFrame(rows: [
@@ -207,13 +207,13 @@ enum StageGlyph: Hashable {
             "..vvv..",
         ]),
         .sun: PixelFrame(rows: [
-            "...Y...",
-            ".Y...Y.",
-            "..YYY..",
-            "YYYYYYY",
-            "..YYY..",
-            ".Y...Y.",
-            "...Y...",
+            "...A...",
+            ".A...A.",
+            "..AAA..",
+            "AAAAAAA",
+            "..AAA..",
+            ".A...A.",
+            "...A...",
         ]),
         .bow: PixelFrame(rows: [
             "KK...KK",
