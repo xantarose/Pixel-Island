@@ -61,6 +61,14 @@ jobs:
             -quiet \
             build
 
+      - name: Show registered App Intents
+        run: |
+          APP=build/Build/Products/Release-iphoneos/PixelIsland.app
+          find "$APP" -name "extract.actionsdata" | while read -r f; do
+            echo "== $f"
+            python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(sorted(d.get('actions', {}).keys()))" "$f" || true
+          done
+
       - name: Package IPA
         run: |
           APP=build/Build/Products/Release-iphoneos/PixelIsland.app
