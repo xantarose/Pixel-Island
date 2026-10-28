@@ -12,11 +12,11 @@ enum Scripts {
         if state.partner != nil {
             if state.isSleeping { return couple(.nap, width: width, height: height) }
             if state.isFocusing() { return coupleFocus(width: width, height: height) }
-            return couple(state.activity, width: width, height: height)
+            return couple(state.activity, width: width, height: height, stride: state.motion.walkStride)
         }
         if state.isSleeping { return solo(.nap, width: width, height: height, curled: true) }
         if state.isFocusing() { return solo(.nap, width: width, height: height) }
-        return solo(state.pose, width: width, height: height)
+        return solo(state.pose, width: width, height: height, stride: state.motion.walkStride)
     }
 
     /// The tiny compact island: one pet per side.
@@ -38,14 +38,15 @@ enum Scripts {
         width: Int,
         height: Int,
         curled: Bool = false,
-        mirrored: Bool = false
+        mirrored: Bool = false,
+        stride strideOverride: Int? = nil
     ) -> StageScript {
         let range = max(width - sprite, 0)
         let y = height - sprite
         let center = range / 2
         // Long walks cost a view per step: keep the stroll short on wide stages.
         let strollEnd = min(range, 32)
-        let stride = width > 40 ? 2 : 1
+        let stride = strideOverride ?? (width > 40 ? 2 : 1)
         var a = Actor(x: center, y: y)
         var zTracks: [[GlyphFrame]] = []
 
@@ -101,14 +102,14 @@ enum Scripts {
 
     // MARK: - Couple
 
-    static func couple(_ activity: CoupleActivity, width: Int, height: Int) -> StageScript {
+    static func couple(_ activity: CoupleActivity, width: Int, height: Int, stride strideOverride: Int? = nil) -> StageScript {
         let y = height - sprite
         let rightStart = max(width - sprite, 0)
         // Facing each other, noses touching: the right pet stands 14 px further.
         let meetLeft = max((width - 30) / 2, 0)
         let meetRight = meetLeft + 14
         let heartX = meetLeft + 13
-        let stride = width > 40 ? 2 : 1
+        let stride = strideOverride ?? (width > 40 ? 2 : 1)
         // Pets enter from a bit inside the edges: shorter walks, fewer views.
         let leftStart = max(meetLeft - 24, 0)
         let rightEnd = min(meetRight + 24, rightStart)

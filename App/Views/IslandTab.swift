@@ -13,7 +13,7 @@ struct IslandTab: View {
             IslandPreview(state: state)
             launchCard
 
-            Card(title: "Ширина") {
+            Card(title: "Размер острова") {
                 TileGrid(minWidth: 140) {
                     ForEach(IslandWidth.allCases, id: \.self) { width in
                         OptionTile(title: width.title, isSelected: state.islandWidth == width) {
@@ -24,8 +24,21 @@ struct IslandTab: View {
                     }
                 }
                 Hint(text: state.islandWidth == .narrow
-                     ? "Почти как пустой островок. Котик двигается на месте."
-                     : "Островок чуть шире, котик ходит туда-сюда.")
+                     ? "Почти как пустой системный островок. Места мало, поэтому котик двигается на месте."
+                     : "Островок шире, котик ходит туда-сюда.")
+            }
+
+            Card(title: "Кадры") {
+                TileGrid(minWidth: 96) {
+                    ForEach(MotionDetail.allCases, id: \.self) { motion in
+                        OptionTile(title: motion.title, isSelected: state.motion == motion) {
+                            model.mutate { $0.motion = motion }
+                        } preview: {
+                            MotionPreview(pet: me, motion: motion, animated: state.motion == motion)
+                        }
+                    }
+                }
+                Hint(text: state.motion.hint + " В режиме энергосбережения айфона котик замирает сам.")
             }
 
             Card(title: "Значок справа") {
@@ -67,20 +80,6 @@ struct IslandTab: View {
                 }
                 .tint(Theme.mint)
                 buttonDiagnostics
-            }
-
-            Card(title: "Батарея") {
-                Toggle(isOn: binding(\.batterySaver)) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Экономия батареи")
-                            .font(Theme.roundedFont(15))
-                            .foregroundStyle(Theme.cream)
-                        Text("Котик замирает. В режиме энергосбережения айфона это включается само.")
-                            .font(Theme.roundedFont(12, weight: .regular))
-                            .foregroundStyle(Theme.muted)
-                    }
-                }
-                .tint(Theme.mint)
             }
         }
     }

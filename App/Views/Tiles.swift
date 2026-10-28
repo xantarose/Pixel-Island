@@ -183,3 +183,22 @@ struct ScopePreview: View {
         }
     }
 }
+
+/// A walking cat with the chosen amount of frames.
+struct MotionPreview: View {
+    let pet: PetSprite
+    let motion: MotionDetail
+    let animated: Bool
+
+    var body: some View {
+        StageView(
+            script: Scripts.solo(.walk, width: 40, height: 16, stride: motion.walkStride),
+            me: pet,
+            partner: nil,
+            effect: motion == .still ? .none : .sakura,
+            pixel: 2,
+            mode: animated && motion != .still ? .inApp : .still,
+            effectLength: motion.effectFrames(compact: false)
+        )
+    }
+}

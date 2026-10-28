@@ -124,6 +124,44 @@ enum AtmosphereEffect: String, Codable, CaseIterable, Hashable {
     }
 }
 
+/// How animation-rich the island is. Independent from the island size.
+enum MotionDetail: String, Codable, CaseIterable, Hashable {
+    /// One frame, nothing moves: no extra battery at all.
+    case still
+    /// Fewer frames: walks in 2-pixel steps, short particle loops.
+    case lite
+    /// More frames: walks pixel by pixel, long particle loops.
+    case smooth
+
+    var title: String {
+        switch self {
+        case .still: return "Замереть"
+        case .lite: return "Экономно"
+        case .smooth: return "Плавно"
+        }
+    }
+
+    var hint: String {
+        switch self {
+        case .still: return "Один кадр, котик не двигается. Батарея не тратится совсем."
+        case .lite: return "Меньше кадров: шаги по 2 пикселя, короткие циклы эффектов. Батарея почти не тратится."
+        case .smooth: return "Больше кадров: шаги по пикселю, длинные циклы эффектов. Красивее, но чуть дороже по батарее."
+        }
+    }
+
+    /// Art pixels per step when walking on the big stages.
+    var walkStride: Int { self == .smooth ? 1 : 2 }
+
+    /// Frames in one particle loop.
+    func effectFrames(compact: Bool) -> Int {
+        switch self {
+        case .still: return 1
+        case .lite: return compact ? 8 : 12
+        case .smooth: return compact ? 12 : 24
+        }
+    }
+}
+
 /// How wide the compact island gets.
 enum IslandWidth: String, Codable, CaseIterable, Hashable {
     /// As close to the empty system island as possible: pets stay in place.
@@ -133,8 +171,8 @@ enum IslandWidth: String, Codable, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .narrow: return "Узкий"
-        case .wide: return "Широкий"
+        case .narrow: return "Маленький"
+        case .wide: return "Большой"
         }
     }
 

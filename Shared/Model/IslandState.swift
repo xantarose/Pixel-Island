@@ -60,8 +60,8 @@ struct IslandState: Codable, Hashable {
     var badge: IslandBadge = .heart
     var keyline: KeylineColor = .pink
     var effectScope: EffectScope = .pet
-    /// Still pets: nothing animates, the island costs no extra battery.
-    var batterySaver: Bool = false
+    /// How many frames the island animates with (still / lite / smooth).
+    var motion: MotionDetail = .lite
     /// Island buttons open the app instead of running silently. A fallback
     /// for builds where iOS does not deliver the silent button taps.
     var buttonsOpenApp: Bool = false
@@ -118,7 +118,7 @@ struct IslandState: Codable, Hashable {
         badge = (try? c.decodeIfPresent(IslandBadge.self, forKey: .badge)) ?? .heart
         keyline = (try? c.decodeIfPresent(KeylineColor.self, forKey: .keyline)) ?? .pink
         effectScope = (try? c.decodeIfPresent(EffectScope.self, forKey: .effectScope)) ?? .pet
-        batterySaver = (try? c.decodeIfPresent(Bool.self, forKey: .batterySaver)) ?? false
+        motion = (try? c.decodeIfPresent(MotionDetail.self, forKey: .motion)) ?? .lite
         buttonsOpenApp = (try? c.decodeIfPresent(Bool.self, forKey: .buttonsOpenApp)) ?? false
     }
 
@@ -172,10 +172,10 @@ struct IslandState: Codable, Hashable {
 }
 
 extension IslandState {
-    /// How the Live Activity should animate right now. Low Power Mode or the
-    /// app's battery saver freeze the pets on one frame.
+    /// How the Live Activity should animate right now. Low Power Mode or
+    /// "Замереть" freeze the pets on one frame.
     var liveActivityMode: PlaybackMode {
-        batterySaver || ProcessInfo.processInfo.isLowPowerModeEnabled ? .still : .liveActivity
+        motion == .still || ProcessInfo.processInfo.isLowPowerModeEnabled ? .still : .liveActivity
     }
 }
 

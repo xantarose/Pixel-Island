@@ -66,7 +66,8 @@ struct MainStage: View {
             partner: state.partner?.sprite,
             effect: state.resolvedEffect,
             pixel: layout.pixel,
-            mode: mode
+            mode: mode,
+            effectLength: state.motion.effectFrames(compact: false)
         )
     }
 }
@@ -86,7 +87,7 @@ struct CompactLeadingView: View {
             effect: state.resolvedEffect,
             pixel: layout.pixel,
             mode: mode,
-            effectLength: 12
+            effectLength: state.motion.effectFrames(compact: true)
         )
     }
 }
@@ -113,7 +114,7 @@ struct CompactTrailingView: View {
                 effect: state.resolvedEffect,
                 pixel: layout.pixel,
                 mode: mode,
-                effectLength: 12
+                effectLength: state.motion.effectFrames(compact: true)
             )
         } else if state.badge != .none || showsIslandEffect {
             ZStack {
@@ -124,7 +125,7 @@ struct CompactTrailingView: View {
                         height: layout.height,
                         pixel: layout.pixel,
                         mode: mode,
-                        length: 12
+                        length: state.motion.effectFrames(compact: true)
                     )
                 }
                 BadgeView(badge: state.badge, pixel: 2, mode: mode)
@@ -151,8 +152,15 @@ struct IslandEffectBackground: View {
 
     var body: some View {
         if state.effectScope == .island {
-            EffectLayer(effect: state.resolvedEffect, width: width, height: height, pixel: pixel, mode: mode)
-                .frame(width: CGFloat(width) * pixel, height: CGFloat(height) * pixel)
+            EffectLayer(
+                effect: state.resolvedEffect,
+                width: width,
+                height: height,
+                pixel: pixel,
+                mode: mode,
+                length: state.motion.effectFrames(compact: false)
+            )
+            .frame(width: CGFloat(width) * pixel, height: CGFloat(height) * pixel)
                 .clipped()
         }
     }
