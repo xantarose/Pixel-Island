@@ -115,9 +115,9 @@ struct CompactTrailingView: View {
                 mode: mode,
                 effectLength: 12
             )
-        } else if state.badge != .none || state.effectScope == .island {
+        } else if state.badge != .none || showsIslandEffect {
             ZStack {
-                if state.effectScope == .island {
+                if showsIslandEffect {
                     EffectLayer(
                         effect: state.resolvedEffect,
                         width: layout.width,
@@ -132,6 +132,12 @@ struct CompactTrailingView: View {
             .frame(width: CGFloat(layout.width) * layout.pixel, height: CGFloat(layout.height) * layout.pixel)
             .clipped()
         }
+    }
+
+    /// Particles on the right only when they are on and set to the whole island:
+    /// an empty block here would make the island wider for nothing.
+    private var showsIslandEffect: Bool {
+        state.effectScope == .island && state.resolvedEffect != .none
     }
 }
 
